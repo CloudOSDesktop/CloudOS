@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloudOS 11</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     BOOT SCREEN
+════════════════════════════════════════════════════════════ -->
+<div id="boot-screen">
+  <div class="boot-logo">
+    <span></span><span></span>
+    <span></span><span></span>
+  </div>
+  <div class="boot-dots">
+    <div class="boot-dot"></div>
+    <div class="boot-dot"></div>
+    <div class="boot-dot"></div>
+    <div class="boot-dot"></div>
+    <div class="boot-dot"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     DESKTOP
+════════════════════════════════════════════════════════════ -->
+<div id="desktop">
+  <div id="desktop-icons"></div>
+  <div id="snap-overlay"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     WINDOWS LAYER
+════════════════════════════════════════════════════════════ -->
+<div id="windows-container"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TASKBAR
+════════════════════════════════════════════════════════════ -->
+<div id="taskbar">
+  <!-- Left: Weather -->
+  <div id="taskbar-left">
+    <div id="weather-widget" onclick="toggleWeatherPanel()">
+      <div class="wb-icon-wrap">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="8" fill="#FFD700"/>
+          <path d="M20 6V4M20 36V34M6 20H4M36 20H34M10.1 10.1L8.7 8.7M31.3 31.3L29.9 29.9M10.1 29.9L8.7 31.3M31.3 8.7L29.9 10.1" stroke="#FFD700" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div id="wb-temp">72°F</div>
+        <div id="wb-loc">Huntington, NY</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Center: Start + pinned apps -->
+  <div id="taskbar-center">
+    <button id="start-btn" onclick="toggleStartMenu()">
+      <div class="win-logo">
+        <span></span><span></span>
+        <span></span><span></span>
+      </div>
+    </button>
+    <div class="tb-separator"></div>
+    <button class="tb-app" data-app="explorer"   onclick="openApp('explorer')">  📁<span class="tb-indicator"></span><span class="tb-tooltip">File Explorer</span></button>
+    <button class="tb-app" data-app="browser"    onclick="openApp('browser')">   🌐<span class="tb-indicator"></span><span class="tb-tooltip">Browser</span></button>
+    <button class="tb-app" data-app="calculator" onclick="openApp('calculator')">🧮<span class="tb-indicator"></span><span class="tb-tooltip">Calculator</span></button>
+    <button class="tb-app" data-app="notepad"    onclick="openApp('notepad')">   📝<span class="tb-indicator"></span><span class="tb-tooltip">Notepad</span></button>
+    <button class="tb-app" data-app="terminal"   onclick="openApp('terminal')">  🖥️<span class="tb-indicator"></span><span class="tb-tooltip">Terminal</span></button>
+    <button class="tb-app" data-app="games"      onclick="openApp('games')">     🎮<span class="tb-indicator"></span><span class="tb-tooltip">Games</span></button>
+    <button class="tb-app" data-app="settings"   onclick="openApp('settings')">  ⚙️<span class="tb-indicator"></span><span class="tb-tooltip">Settings</span></button>
+    <button class="tb-app" data-app="vpn"        onclick="openApp('vpn')">        🔒<span class="tb-indicator"></span><span class="tb-tooltip">CloudVPN</span></button>
+  </div>
+
+  <!-- Right: tray + clock -->
+  <div id="taskbar-right">
+    <div class="tray-btn" title="Network" onclick="toggleQuickSettings()">📶</div>
+    <div class="tray-btn" title="Volume"  onclick="toggleQuickSettings()">🔊</div>
+    <div class="tray-btn" title="Battery">
+      <div class="battery-icon">
+        <div class="battery-fill" id="battery-fill" style="width:80%"></div>
+      </div>
+    </div>
+    <div id="clock-widget" onclick="toggleQuickSettings()">
+      <div id="clock-time">12:00 PM</div>
+      <div id="clock-date">6/12/2026</div>
+    </div>
+    <div class="show-desktop-btn" title="Show Desktop" onclick="toggleShowDesktop()"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     START MENU
+════════════════════════════════════════════════════════════ -->
+<div id="start-menu">
+  <div id="sm-search-wrap">
+    <input id="sm-search" type="text" placeholder="🔍  Search apps, files, and settings…">
+  </div>
+  <div id="sm-body">
+    <div class="sm-section-label">Pinned</div>
+    <div class="sm-grid" id="sm-pinned-grid"></div>
+    <div class="sm-section-label">All Apps</div>
+    <div class="sm-grid" id="sm-all-grid"></div>
+  </div>
+  <div id="sm-footer">
+    <div class="sm-user">
+      <div class="sm-avatar">👤</div>
+      <div class="sm-username">CloudOS User</div>
+    </div>
+    <button class="sm-power-btn" onclick="powerOptions()" title="Power">⏻</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     WEATHER PANEL
+════════════════════════════════════════════════════════════ -->
+<div id="weather-panel">
+  <div class="wp-hero">
+    <div class="wp-icon-big">
+      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="36" r="16" fill="#FFD700"/>
+        <path d="M40 10V6M40 70V66M12 36H8M72 36H68M20.2 20.2L17.4 17.4M62.6 62.6L59.8 59.8M20.2 59.8L17.4 62.6M62.6 17.4L59.8 20.2" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="wp-temp-big" id="wp-temp-big">72°</div>
+      <div class="wp-desc">Partly Cloudy</div>
+      <div class="wp-location">Huntington, New York</div>
+      <div class="unit-btns">
+        <button class="unit-btn active" onclick="setWeatherUnit('F')">°F</button>
+        <button class="unit-btn"        onclick="setWeatherUnit('C')">°C</button>
+      </div>
+    </div>
+  </div>
+  <div class="wp-stats">
+    <div class="wp-stat"><div class="wp-stat-label">Humidity</div><div class="wp-stat-val">58%</div></div>
+    <div class="wp-stat"><div class="wp-stat-label">Wind</div><div class="wp-stat-val">8 mph</div></div>
+    <div class="wp-stat"><div class="wp-stat-label">UV Index</div><div class="wp-stat-val">4</div></div>
+    <div class="wp-stat"><div class="wp-stat-label">Visibility</div><div class="wp-stat-val">10 mi</div></div>
+  </div>
+  <div class="wp-forecast">
+    <div class="wp-day"><div class="wp-day-name">Today</div><div class="wp-day-icon">⛅</div><div class="wp-day-temps"><span class="wp-day-hi">74°</span>/<span class="wp-day-lo">61°</span></div></div>
+    <div class="wp-day"><div class="wp-day-name">Fri</div>  <div class="wp-day-icon">☀️</div><div class="wp-day-temps"><span class="wp-day-hi">78°</span>/<span class="wp-day-lo">63°</span></div></div>
+    <div class="wp-day"><div class="wp-day-name">Sat</div>  <div class="wp-day-icon">🌧️</div><div class="wp-day-temps"><span class="wp-day-hi">68°</span>/<span class="wp-day-lo">55°</span></div></div>
+    <div class="wp-day"><div class="wp-day-name">Sun</div>  <div class="wp-day-icon">☀️</div><div class="wp-day-temps"><span class="wp-day-hi">82°</span>/<span class="wp-day-lo">66°</span></div></div>
+    <div class="wp-day"><div class="wp-day-name">Mon</div>  <div class="wp-day-icon">⛅</div><div class="wp-day-temps"><span class="wp-day-hi">76°</span>/<span class="wp-day-lo">60°</span></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     QUICK SETTINGS
+════════════════════════════════════════════════════════════ -->
+<div id="quick-settings">
+  <div class="qs-grid">
+    <button class="qs-btn on"  data-qs="wifi"         onclick="qsToggle(this)"><span class="qs-icon">📶</span><span class="qs-label">Wi-Fi</span></button>
+    <button class="qs-btn on"  data-qs="bluetooth"    onclick="qsToggle(this)"><span class="qs-icon">🔵</span><span class="qs-label">Bluetooth</span></button>
+    <button class="qs-btn"     data-qs="airplane"     onclick="qsToggle(this)"><span class="qs-icon">✈️</span><span class="qs-label">Airplane</span></button>
+    <button class="qs-btn on"  data-qs="focus"        onclick="qsToggle(this)"><span class="qs-icon">🌙</span><span class="qs-label">Focus</span></button>
+    <button class="qs-btn"     data-qs="access"       onclick="qsToggle(this)"><span class="qs-icon">♿</span><span class="qs-label">Accessibility</span></button>
+    <button class="qs-btn on"  data-qs="powersave"    onclick="qsToggle(this)"><span class="qs-icon">🔋</span><span class="qs-label">Power Save</span></button>
+  </div>
+  <div class="qs-slider-row">
+    <span class="qs-slider-icon">🔊</span>
+    <input type="range" min="0" max="100" value="80" id="qs-volume">
+  </div>
+  <div class="qs-slider-row">
+    <span class="qs-slider-icon">☀️</span>
+    <input type="range" min="0" max="100" value="100" id="qs-brightness" oninput="setBrightness(this.value)">
+  </div>
+  <div class="qs-clock-row">
+    <div id="qs-time">12:00</div>
+    <div id="qs-date-full">Friday<br>June 12, 2026</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CONTEXT MENU
+════════════════════════════════════════════════════════════ -->
+<div id="ctx-menu">
+  <div class="ctx-item" onclick="ctxNewFolder()">  <span class="ci-icon">📁</span>New Folder</div>
+  <div class="ctx-item" onclick="ctxNewFile()">    <span class="ci-icon">📄</span>New Text File</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" onclick="ctxWallpaper()">  <span class="ci-icon">🖼️</span>Change Wallpaper</div>
+  <div class="ctx-item" onclick="ctxRefresh()">    <span class="ci-icon">🔄</span>Refresh</div>
+  <div class="ctx-item" onclick="openApp('settings')"><span class="ci-icon">⚙️</span>Display Settings</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item danger" onclick="powerOptions()"><span class="ci-icon">⏻</span>Power Options</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     NOTIFICATIONS
+════════════════════════════════════════════════════════════ -->
+<div id="notif-stack"></div>
+
+<!-- Overlays -->
+<div id="brightness-overlay"></div>
+<div class="overlay-blocker" id="overlay-blocker"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+// ──────────────────────────────────────────────────────────────
+//  APP REGISTRY
+// ──────────────────────────────────────────────────────────────
+const APPS = {
+  explorer:   { name:'File Explorer',  icon:'📁', w:820, h:540 },
+  browser:    { name:'Browser',        icon:'🌐', w:900, h:580 },
+  calculator: { name:'Calculator',     icon:'🧮', w:420, h:540 },
+  notepad:    { name:'Notepad',        icon:'📝', w:700, h:460 },
+  terminal:   { name:'Terminal',       icon:'🖥️', w:700, h:420 },
+  settings:   { name:'Settings',       icon:'⚙️', w:820, h:560 },
+  games:      { name:'Games',          icon:'🎮', w:840, h:580 },
+  photos:     { name:'Photos',         icon:'🖼️', w:780, h:520 },
+  music:      { name:'Music',          icon:'🎵', w:680, h:500 },
+  paint:      { name:'Paint',          icon:'🎨', w:840, h:560 },
+  calendar:   { name:'Calendar',       icon:'📅', w:680, h:480 },
+  mail:       { name:'Mail',           icon:'✉️', w:780, h:540 },
+  vpn:        { name:'CloudVPN',       icon:'🔒', w:900, h:580 },
+};
+
+const SM_APPS = [
+  { id:'explorer',   icon:'📁', name:'File Explorer' },
+  { id:'browser',    icon:'🌐', name:'Browser'       },
+  { id:'calculator', icon:'🧮', name:'Calculator'    },
+  { id:'notepad',    icon:'📝', name:'Notepad'       },
+  { id:'terminal',   icon:'🖥️', name:'Terminal'      },
+  { id:'settings',   icon:'⚙️', name:'Settings'      },
+  { id:'games',      icon:'🎮', name:'Games'         },
+  { id:'photos',     icon:'🖼️', name:'Photos'        },
+  { id:'music',      icon:'🎵', name:'Music'         },
+  { id:'paint',      icon:'🎨', name:'Paint'         },
+  { id:'calendar',   icon:'📅', name:'Calendar'      },
+  { id:'mail',       icon:'✉️', name:'Mail'          },
+  { id:'vpn',        icon:'🔒', name:'CloudVPN'      },
+];
+
+const DESKTOP_ICONS_DEF = [
+  { id:'explorer',   icon:'📁', name:'This PC',     x:0, y:0   },
+  { id:'browser',    icon:'🌐', name:'Browser',     x:0, y:100 },
+  { id:'notepad',    icon:'📝', name:'Notepad',     x:0, y:200 },
+  { id:'terminal',   icon:'🖥️', name:'Terminal',    x:0, y:300 },
+  { id:'games',      icon:'🎮', name:'Games',       x:0, y:400 },
+  { id:'settings',   icon:'⚙️', name:'Settings',   x:0, y:500 },
+  { id:'calculator', icon:'🧮', name:'Calculator',  x:0, y:600 },
+];
+
+// ──────────────────────────────────────────────────────────────
+//  STATE
+// ──────────────────────────────────────────────────────────────
+let openWindows   = {};   // id → { win, maximized, preMaxBounds }
+let zTop          = 300;
+let focusedWinId  = null;
+let desktopHidden = false;
+let weatherUnitF  = true;
+
+// ──────────────────────────────────────────────────────────────
+//  BOOT
+// ──────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  buildDesktopIcons();
+  buildStartMenu();
+  startClock();
+  simulateBattery();
+  restoreSettings();
+
+  // Boot fade-out after 2.4 s
+  setTimeout(() => {
+    const bs = document.getElementById('boot-screen');
+    bs.classList.add('fade-out');
+    setTimeout(() => {
+      bs.style.display = 'none';
+      showNotif('CloudOS 11', 'Welcome back! Double-click icons to open apps.', '💻');
+    }, 650);
+  }, 2400);
+});
+
+// ──────────────────────────────────────────────────────────────
+//  DESKTOP ICONS
+// ──────────────────────────────────────────────────────────────
+const ICON_GRID_W = 100;
+const ICON_GRID_H = 100;
+
+function buildDesktopIcons() {
+  const cont = document.getElementById('desktop-icons');
+  DESKTOP_ICONS_DEF.forEach(ic => {
+    const el = document.createElement('div');
+    el.className  = 'desktop-icon';
+    el.style.left = ic.x + 'px';
+    el.style.top  = ic.y + 'px';
+    el.dataset.id = ic.id;
+    el.innerHTML  = `<div class="di-icon">${ic.icon}</div><div class="di-label">${ic.name}</div>`;
+    el.addEventListener('dblclick', () => openApp(ic.id));
+    el.addEventListener('click', e => { e.stopPropagation(); selectIcon(el); });
+    makeDraggableIcon(el);
+    cont.appendChild(el);
+  });
+  document.getElementById('desktop').addEventListener('click', clearIconSelections);
+  // Restore saved positions once vault has decrypted storage.
+  if (window.vaultReady) {
+    window.vaultReady(restoreIconPositions);
+  } else {
+    restoreIconPositions();
+  }
+}
+
+function selectIcon(el) {
+  clearIconSelections();
+  el.classList.add('selected');
+}
+function clearIconSelections() {
+  document.querySelectorAll('.desktop-icon').forEach(i => i.classList.remove('selected'));
+}
+
+function makeDraggableIcon(el) {
+  let ox, oy, sx, sy, dragging = false;
+  el.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    sx = e.clientX; sy = e.clientY;
+    ox = parseInt(el.style.left); oy = parseInt(el.style.top);
+    dragging = false;
+    const onMove = ev => {
+      const dx = ev.clientX - sx, dy = ev.clientY - sy;
+      if (!dragging && Math.hypot(dx, dy) > 5) { dragging = true; el.classList.add('dragging'); }
+      if (dragging) { el.style.left = Math.max(0, ox + dx) + 'px'; el.style.top = Math.max(0, oy + dy) + 'px'; }
+    };
+    const onUp = () => {
+      if (dragging) {
+        const desktop = document.getElementById('desktop');
+        const maxX = desktop.offsetWidth  - el.offsetWidth;
+        const maxY = desktop.offsetHeight - el.offsetHeight;
+        const snappedX = Math.max(0, Math.min(maxX, Math.round(parseInt(el.style.left) / ICON_GRID_W) * ICON_GRID_W));
+        const snappedY = Math.max(0, Math.min(maxY, Math.round(parseInt(el.style.top)  / ICON_GRID_H) * ICON_GRID_H));
+        el.style.left = snappedX + 'px';
+        el.style.top  = snappedY + 'px';
+        saveIconPositions();
+      }
+      el.classList.remove('dragging');
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+//  ICON POSITION PERSISTENCE
+// ──────────────────────────────────────────────────────────────
+function saveIconPositions() {
+  const positions = {};
+  document.querySelectorAll('.desktop-icon').forEach(ic => {
+    if (ic.dataset.id) {
+      positions[ic.dataset.id] = { x: parseInt(ic.style.left), y: parseInt(ic.style.top) };
+    }
+  });
+  localStorage.setItem('iconPositions', JSON.stringify(positions));
+}
+
+function restoreIconPositions() {
+  const raw = localStorage.getItem('iconPositions');
+  if (!raw) return;
+  try {
+    const positions = JSON.parse(raw);
+    document.querySelectorAll('.desktop-icon').forEach(ic => {
+      const saved = positions[ic.dataset.id];
+      if (saved) {
+        ic.style.left = saved.x + 'px';
+        ic.style.top  = saved.y + 'px';
+      }
+    });
+  } catch(e) {}
+}
+
+// ──────────────────────────────────────────────────────────────
+//  START MENU
+// ──────────────────────────────────────────────────────────────
+function buildStartMenu() {
+  const pinned = document.getElementById('sm-pinned-grid');
+  const all    = document.getElementById('sm-all-grid');
+  SM_APPS.slice(0, 12).forEach(a => {
+    pinned.appendChild(smAppEl(a));
+    all.appendChild(smAppEl(a));
+  });
+  document.getElementById('sm-search').addEventListener('input', e => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('#sm-pinned-grid .sm-app, #sm-all-grid .sm-app').forEach(el => {
+      el.style.display = el.dataset.name.includes(q) ? '' : 'none';
+    });
+  });
+}
+
+function smAppEl(a) {
+  const el = document.createElement('div');
+  el.className    = 'sm-app';
+  el.dataset.name = a.name.toLowerCase();
+  el.innerHTML    = `<div class="sm-icon">${a.icon}</div><div class="sm-label">${a.name}</div>`;
+  el.addEventListener('click', () => { openApp(a.id); closeAllPanels(); });
+  return el;
+}
+
+function toggleStartMenu() {
+  const m    = document.getElementById('start-menu');
+  const open = m.classList.toggle('open');
+  document.getElementById('start-btn').classList.toggle('active', open);
+  if (open) { closePanel('weather-panel'); closePanel('quick-settings'); }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  PANELS
+// ──────────────────────────────────────────────────────────────
+function toggleWeatherPanel() {
+  const p = document.getElementById('weather-panel');
+  const o = p.classList.toggle('open');
+  if (o) { closePanel('quick-settings'); closePanel('start-menu'); document.getElementById('start-btn').classList.remove('active'); }
+}
+function toggleQuickSettings() {
+  const p = document.getElementById('quick-settings');
+  const o = p.classList.toggle('open');
+  if (o) { closePanel('weather-panel'); closePanel('start-menu'); document.getElementById('start-btn').classList.remove('active'); }
+}
+function closePanel(id) { document.getElementById(id)?.classList.remove('open'); }
+function closeAllPanels() {
+  closePanel('start-menu'); closePanel('weather-panel'); closePanel('quick-settings');
+  document.getElementById('start-btn').classList.remove('active');
+}
+
+// Close panels on outside click
+document.addEventListener('mousedown', e => {
+  if (!e.target.closest('#start-menu')     && !e.target.closest('#start-btn'))       { closePanel('start-menu'); document.getElementById('start-btn').classList.remove('active'); }
+  if (!e.target.closest('#weather-panel')  && !e.target.closest('#weather-widget'))   closePanel('weather-panel');
+  if (!e.target.closest('#quick-settings') && !e.target.closest('#clock-widget') && !e.target.closest('.tray-btn')) closePanel('quick-settings');
+  if (!e.target.closest('#ctx-menu'))      document.getElementById('ctx-menu').classList.remove('open');
+});
+
+// ──────────────────────────────────────────────────────────────
+//  CONTEXT MENU
+// ──────────────────────────────────────────────────────────────
+const WALLPAPERS = ['wallpaper-bloom','wallpaper-space','wallpaper-aurora','wallpaper-sunset','wallpaper-forest','wallpaper-geo','wallpaper-lava','wallpaper-cyber','wallpaper-ocean','wallpaper-neon-city'];
+let wpIdx = 0;
+
+document.getElementById('desktop').addEventListener('contextmenu', e => {
+  e.preventDefault();
+  closeAllPanels();
+  const ctx = document.getElementById('ctx-menu');
+  ctx.style.left = Math.min(e.clientX, window.innerWidth  - 210) + 'px';
+  ctx.style.top  = Math.min(e.clientY, window.innerHeight - 260) + 'px';
+  ctx.classList.add('open');
+});
+
+function ctxWallpaper() {
+  const d = document.getElementById('desktop');
+  WALLPAPERS.forEach(c => d.classList.remove(c));
+  wpIdx = (wpIdx + 1) % WALLPAPERS.length;
+  d.classList.add(WALLPAPERS[wpIdx]);
+  localStorage.setItem('wallpaper', WALLPAPERS[wpIdx]);
+  showNotif('Desktop', 'Wallpaper changed!', '🖼️');
+}
+function ctxRefresh()   { showNotif('Desktop', 'Refreshed.', '🔄'); }
+function ctxNewFolder() { showNotif('Desktop', 'New folder created.', '📁'); }
+function ctxNewFile()   {
+  openApp('notepad');
+  setTimeout(() => { const e = document.getElementById('np-editor'); if (e) e.value = ''; }, 300);
+}
+
+// ──────────────────────────────────────────────────────────────
+//  CLOCK
+// ──────────────────────────────────────────────────────────────
+function startClock() {
+  const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function tick() {
+    const now  = new Date();
+    const h    = now.getHours(), m = now.getMinutes();
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const hh   = (h % 12) || 12;
+    const mm   = String(m).padStart(2, '0');
+    const timeStr = `${hh}:${mm} ${ampm}`;
+    document.getElementById('clock-time').textContent = timeStr;
+    document.getElementById('clock-date').textContent = `${now.getMonth()+1}/${now.getDate()}/${now.getFullYear()}`;
+    document.getElementById('qs-time').textContent    = `${hh}:${mm}`;
+    document.getElementById('qs-date-full').innerHTML = `${DAYS[now.getDay()]}<br>${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  }
+  tick();
+  setInterval(tick, 10000);
+}
+
+// ──────────────────────────────────────────────────────────────
+//  BATTERY SIMULATION
+// ──────────────────────────────────────────────────────────────
+function simulateBattery() {
+  let level = parseInt(localStorage.getItem('batteryLevel') || '80');
+  const fill = document.getElementById('battery-fill');
+
+  function applyLevel() {
+    fill.style.width = level + '%';
+    fill.className   = 'battery-fill' + (level <= 20 ? ' critical' : level <= 35 ? ' low' : '');
+    // Keep the Settings → System → Power text in sync
+    const txt = document.getElementById('s-battery-text');
+    if (txt) txt.textContent = level + '% – Plugged in';
+    localStorage.setItem('batteryLevel', level);
+  }
+
+  applyLevel(); // paint immediately so the bar isn't stuck at 80 on first open
+  setInterval(() => {
+    level = Math.max(5, Math.min(100, level + (Math.random() > 0.5 ? 1 : -1)));
+    applyLevel();
+  }, 20000);
+}
+
+// ──────────────────────────────────────────────────────────────
+//  BRIGHTNESS
+// ──────────────────────────────────────────────────────────────
+function setBrightness(v) {
+  document.getElementById('brightness-overlay').style.opacity = ((100 - v) / 100) * 0.88;
+}
+
+// ──────────────────────────────────────────────────────────────
+//  PERSISTENT SETTINGS — load on boot, save on change
+// ──────────────────────────────────────────────────────────────
+function restoreSettings() {
+  // Wallpaper
+  const savedWp = localStorage.getItem('wallpaper');
+  if (savedWp && WALLPAPERS.includes(savedWp)) {
+    wpIdx = WALLPAPERS.indexOf(savedWp);
+    document.getElementById('desktop').classList.add(savedWp);
+  }
+  // Night Light
+  if (localStorage.getItem('nightLight') === '1') document.body.classList.add('night-light');
+  // Dark Mode (default = dark; '0' stored means the user turned it off → light-mode)
+  if (localStorage.getItem('darkMode') === '0')    document.body.classList.add('light-mode');
+  // Transparency (default = on; '0' means off)
+  if (localStorage.getItem('transparency') === '0') document.body.classList.add('no-transparency');
+  // Accent Color
+  const savedAccent = localStorage.getItem('accentColor');
+  if (savedAccent) _applyAccent(savedAccent);
+  // Quick-settings tile states
+  restoreQsStates();
+  // Username
+  const savedName = localStorage.getItem('username');
+  if (savedName) {
+    const usernameEl = document.querySelector('.sm-username');
+    if (usernameEl) usernameEl.textContent = savedName;
+  }
+}
+
+function restoreQsStates() {
+  document.querySelectorAll('.qs-btn[data-qs]').forEach(btn => {
+    const saved = localStorage.getItem('qs-' + btn.dataset.qs);
+    if (saved !== null) btn.classList.toggle('on', saved === '1');
+  });
+}
+
+function qsToggle(el) {
+  el.classList.toggle('on');
+  localStorage.setItem('qs-' + el.dataset.qs, el.classList.contains('on') ? '1' : '0');
+}
+
+// Settings toggle functions — each one changes real UI AND persists
+
+function toggleNightLight(el) {
+  el.classList.toggle('on');
+  const on = el.classList.contains('on');
+  document.body.classList.toggle('night-light', on);
+  localStorage.setItem('nightLight', on ? '1' : '0');
+  showNotif('Display', 'Night Light ' + (on ? 'on' : 'off'), '🌙');
+}
+
+function toggleDarkMode(el) {
+  el.classList.toggle('on');
+  const isDark = el.classList.contains('on');
+  document.body.classList.toggle('light-mode', !isDark);
+  localStorage.setItem('darkMode', isDark ? '1' : '0');
+  showNotif('Personalization', (isDark ? 'Dark' : 'Light') + ' Mode applied', isDark ? '🌑' : '☀️');
+}
+
+function toggleTransparency(el) {
+  el.classList.toggle('on');
+  const on = el.classList.contains('on');
+  document.body.classList.toggle('no-transparency', !on);
+  localStorage.setItem('transparency', on ? '1' : '0');
+  showNotif('Personalization', 'Transparency ' + (on ? 'on' : 'off'), '🪟');
+}
+
+function toggleHDR(el) {
+  el.classList.toggle('on');
+  const on = el.classList.contains('on');
+  localStorage.setItem('hdr', on ? '1' : '0');
+  showNotif('Display', 'HDR ' + (on ? 'on' : 'off'), '🔆');
+}
+
+function toggleSpatialAudio(el) {
+  el.classList.toggle('on');
+  const on = el.classList.contains('on');
+  localStorage.setItem('spatialAudio', on ? '1' : '0');
+  showNotif('Sound', 'Spatial Audio ' + (on ? 'on' : 'off'), '🔊');
+}
+
+function togglePrivacy(el, key) {
+  el.classList.toggle('on');
+  const on = el.classList.contains('on');
+  localStorage.setItem('priv-' + key, on ? '1' : '0');
+  const label = key.charAt(0).toUpperCase() + key.slice(1);
+  showNotif('Privacy', label + ' ' + (on ? 'allowed' : 'blocked'), '🔒');
+}
+
+function editUsername() {
+  const display = document.getElementById('account-name-display');
+  if (!display) return;
+  const current = display.textContent;
+  const input = document.createElement('input');
+  input.value = current;
+  input.style.cssText = 'background:rgba(255,255,255,0.08);border:1px solid var(--accent);border-radius:var(--radius-sm);color:#fff;padding:3px 8px;font-size:13px;font-family:var(--font);outline:none;width:150px';
+  display.replaceWith(input);
+  input.focus();
+  input.select();
+  const save = () => {
+    const newName = input.value.trim() || current;
+    localStorage.setItem('username', newName);
+    const usernameEl = document.querySelector('.sm-username');
+    if (usernameEl) usernameEl.textContent = newName;
+    const span = document.createElement('span');
+    span.id = 'account-name-display';
+    span.className = 'settings-row-val';
+    span.textContent = newName;
+    input.replaceWith(span);
+    showNotif('Accounts', 'Name updated to "' + newName + '"', '👤');
+  };
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') input.blur();
+    if (e.key === 'Escape') { input.value = current; input.blur(); }
+  });
+}
+
+function _applyAccent(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  document.documentElement.style.setProperty('--accent',      hex);
+  document.documentElement.style.setProperty('--accent-light',hex);
+  document.documentElement.style.setProperty('--accent-glow', `rgba(${r},${g},${b},0.25)`);
+}
+function setAccentColor(val) {
+  _applyAccent(val);
+  localStorage.setItem('accentColor', val);
+  showNotif('Personalization', 'Accent color updated!', '🎨');
+}
+
+// ──────────────────────────────────────────────────────────────
+//  APP: NOTEPAD — auto-save content to localStorage
+// ──────────────────────────────────────────────────────────────
+function npTriggerSave() {
+  const icon = document.getElementById('np-save-icon');
+  if (!icon) return;
+  icon.classList.remove('np-saved');
+  void icon.offsetWidth; // force reflow to restart animation
+  icon.classList.add('np-saved');
+}
+
+function initNotepad() {
+  setTimeout(() => {
+    const e = document.getElementById('np-editor');
+    if (!e) return;
+    // Wait for vault to finish decrypting before reading saved content.
+    const load = () => {
+      const saved = localStorage.getItem('notepadContent');
+      if (saved !== null) e.value = saved;
+    };
+    if (window.vaultReady) { window.vaultReady(load); } else { load(); }
+    e.addEventListener('input', () => {
+      localStorage.setItem('notepadContent', e.value);
+      npTriggerSave();
+    });
+  }, 80);
+}
+
+// ──────────────────────────────────────────────────────────────
+//  WEATHER UNIT
+// ──────────────────────────────────────────────────────────────
+function setWeatherUnit(u) {
+  weatherUnitF = u === 'F';
+  document.querySelectorAll('.unit-btn').forEach(b => b.classList.toggle('active', b.textContent.includes(u)));
+  const tempF = 72;
+  const disp  = weatherUnitF ? `${tempF}°F` : `${Math.round((tempF-32)*5/9)}°C`;
+  const big   = weatherUnitF ? `${tempF}°`  : `${Math.round((tempF-32)*5/9)}°`;
+  document.getElementById('wb-temp').textContent     = disp;
+  document.getElementById('wp-temp-big').textContent = big;
+}
+
+// ──────────────────────────────────────────────────────────────
+//  SHOW DESKTOP
+// ──────────────────────────────────────────────────────────────
+function toggleShowDesktop() {
+  desktopHidden = !desktopHidden;
+  Object.values(openWindows).forEach(w => {
+    if (desktopHidden) { w._wasMin = w.win.classList.contains('minimized'); w.win.classList.add('minimized'); }
+    else               { if (!w._wasMin) w.win.classList.remove('minimized'); }
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+//  POWER OPTIONS
+// ──────────────────────────────────────────────────────────────
+function powerOptions() {
+  showNotif('Power', 'Sleep / Restart / Shutdown — demo only.', '⏻');
+}
+
+// ──────────────────────────────────────────────────────────────
+//  NOTIFICATIONS
+// ──────────────────────────────────────────────────────────────
+function showNotif(title, msg, icon = '🔔') {
+  const stack = document.getElementById('notif-stack');
+  const n     = document.createElement('div');
+  n.className = 'notif';
+  n.innerHTML = `<button class="notif-close" onclick="dismissNotif(this)">✕</button><h4>${icon} ${title}</h4><p>${msg}</p>`;
+  stack.appendChild(n);
+  setTimeout(() => { if (n.parentNode) dismissNotif(n.querySelector('.notif-close')); }, 4500);
+}
+function dismissNotif(btn) {
+  const n = btn.closest('.notif');
+  n.classList.add('out');
+  setTimeout(() => n.remove(), 280);
+}
+
+// ──────────────────────────────────────────────────────────────
+//  WINDOW MANAGEMENT
+// ──────────────────────────────────────────────────────────────
+function openApp(id) {
+  closeAllPanels();
+  if (openWindows[id]) {
+    openWindows[id].win.classList.contains('minimized') ? restoreWin(id) : focusWin(id);
+    return;
+  }
+  if (!APPS[id]) { showNotif('CloudOS', `${id} – coming soon!`, '🚀'); return; }
+  createWindow(id);
+}
+
+function createWindow(id) {
+  const app  = APPS[id];
+  const dW   = window.innerWidth, dH = window.innerHeight - 48;
+  const wW   = Math.min(app.w, dW - 60);
+  const wH   = Math.min(app.h, dH - 60);
+  const offs = (Object.keys(openWindows).length % 8) * 22;
+  const x    = Math.max(0, Math.floor((dW - wW) / 2) + offs - 80);
+  const y    = Math.max(0, Math.floor((dH - wH) / 2) + offs - 40);
+
+  const win  = document.createElement('div');
+  win.className = 'win focused';
+  win.id        = 'win-' + id;
+  win.style.cssText = `left:${x}px;top:${y}px;width:${wW}px;height:${wH}px;z-index:${++zTop}`;
+  win.innerHTML = `
+    <div class="win-bar">
+      <span class="win-bar-icon">${app.icon}</span>
+      <span class="win-bar-title">${app.name}</span>
+      <div class="win-controls">
+        <button class="win-btn" data-action="minimize" title="Minimize">
+          <svg viewBox="0 0 10 10"><line x1="0" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1.2"/></svg>
+        </button>
+        <button class="win-btn" data-action="maximize" title="Maximize">
+          <svg viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+        </button>
+        <button class="win-btn close-btn" data-action="close" title="Close">
+          <svg viewBox="0 0 10 10"><line x1="0" y1="0" x2="10" y2="10" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="0" x2="0" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="win-body" id="wbody-${id}">${buildAppHTML(id)}</div>
+    <div class="resize-e"  data-dir="e"></div>
+    <div class="resize-s"  data-dir="s"></div>
+    <div class="resize-se" data-dir="se"></div>
+    <div class="resize-sw" data-dir="sw"></div>
+  `;
+
+  document.getElementById('windows-container').appendChild(win);
+  openWindows[id] = { win, maximized: false };
+
+  // Wire title-bar buttons via addEventListener (avoids inline onclick CSP issues
+  // and guarantees clicks fire even when game canvases are active)
+  const controls = win.querySelector('.win-controls');
+  controls.addEventListener('mousedown', e => e.stopPropagation());
+  controls.querySelector('[data-action="minimize"]').addEventListener('click', () => minimizeWin(id));
+  controls.querySelector('[data-action="maximize"]').addEventListener('click', () => toggleMaximize(id));
+  controls.querySelector('[data-action="close"]').addEventListener('click',    () => closeWin(id));
+
+  makeDraggable(win, id);
+  makeResizable(win, id);
+  win.addEventListener('mousedown', () => focusWin(id));
+  setTbBtn(id, true, true);
+
+  // Per-app post-init
+  if (id === 'calculator') initCalc();
+  if (id === 'notepad')    initNotepad();
+  if (id === 'games')      initGames();
+  if (id === 'terminal')   initTerminal();
+  if (id === 'explorer')   initFiles();
+  if (id === 'paint')      initPaint();
+  if (id === 'settings')   initSettings();
+  if (id === 'calendar')   initCalendar();
+  if (id === 'vpn')        initVpn();
+}
+
+// Window ops
+function focusWin(id) {
+  if (focusedWinId === id) return;
+  document.querySelectorAll('.win').forEach(w => w.classList.remove('focused'));
+  const w = openWindows[id]; if (!w) return;
+  w.win.style.zIndex = ++zTop;
+  w.win.classList.add('focused');
+  focusedWinId = id;
+  setTbBtn(id, true, true);
+}
+function minimizeWin(id) {
+  const w = openWindows[id]; if (!w) return;
+  w.win.classList.add('minimized');
+  setTbBtn(id, true, false);
+  if (focusedWinId === id) focusedWinId = null;
+}
+function restoreWin(id) {
+  const w = openWindows[id]; if (!w) return;
+  w.win.classList.remove('minimized');
+  focusWin(id);
+}
+function closeWin(id) {
+  const w = openWindows[id]; if (!w) return;
+  // Remove window from DOM immediately — nothing should block this
+  w.win.remove();
+  delete openWindows[id];
+  setTbBtn(id, false, false);
+  if (focusedWinId === id) focusedWinId = null;
+  // Games-specific: kill all loops and save progress
+  if (id === 'games') {
+    try {
+      // Stop all game loops so they don't keep running after window is gone
+      if (typeof sGame !== 'undefined' && sGame?.iv) { clearInterval(sGame.iv); sGame.alive = false; }
+      if (typeof tetrisLoop !== 'undefined') cancelAnimationFrame(tetrisLoop);
+      if (typeof flappyRAF  !== 'undefined') cancelAnimationFrame(flappyRAF);
+      if (typeof pongRAF    !== 'undefined') cancelAnimationFrame(pongRAF);
+      if (typeof boRAF      !== 'undefined') cancelAnimationFrame(boRAF);
+      if (typeof pm         !== 'undefined' && pm?.loop) clearInterval(pm.loop);
+      // Save progress
+      if (typeof g24best !== 'undefined' && g24best > 0) localStorage.setItem('g2048Best', g24best);
+      if (typeof tttRecord !== 'undefined') localStorage.setItem('tttRecord', JSON.stringify(tttRecord));
+    } catch(e) {}
+    showNotif('Games', 'Progress saved 💾', '🎮');
+  }
+}
+function toggleMaximize(id) {
+  const w = openWindows[id]; if (!w) return;
+  w.maximized = !w.maximized;
+  w.win.classList.toggle('maximized', w.maximized);
+}
+function setTbBtn(id, open, active) {
+  const btn = document.querySelector(`.tb-app[data-app="${id}"]`);
+  if (!btn) return;
+  btn.classList.toggle('open', open);
+  btn.classList.toggle('active-win', active === true);
+}
+
+// Drag
+function makeDraggable(win, id) {
+  const bar = win.querySelector('.win-bar');
+  bar.addEventListener('mousedown', e => {
+    if (e.target.closest('.win-controls')) return;
+    const w = openWindows[id]; if (w?.maximized) return;
+    focusWin(id);
+    let ox = win.offsetLeft, oy = win.offsetTop, sx = e.clientX, sy = e.clientY;
+    const mv = ev => {
+      win.style.left = Math.max(0, ox + ev.clientX - sx) + 'px';
+      win.style.top  = Math.max(0, Math.min(oy + ev.clientY - sy, window.innerHeight - 80)) + 'px';
+    };
+    const up = () => { window.removeEventListener('mousemove', mv); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', mv);
+    window.addEventListener('mouseup', up);
+  });
+  bar.addEventListener('dblclick', () => toggleMaximize(id));
+}
+
+// Resize
+function makeResizable(win, id) {
+  win.querySelectorAll('[data-dir]').forEach(h => {
+    h.addEventListener('mousedown', e => {
+      e.preventDefault(); e.stopPropagation();
+      const dir = h.dataset.dir;
+      let sx = e.clientX, sy = e.clientY;
+      let sw = win.offsetWidth, sh = win.offsetHeight, sl = win.offsetLeft, st = win.offsetTop;
+      const mv = ev => {
+        const dx = ev.clientX - sx, dy = ev.clientY - sy;
+        if (dir.includes('e'))  win.style.width  = Math.max(280, sw + dx) + 'px';
+        if (dir.includes('s'))  win.style.height = Math.max(180, sh + dy) + 'px';
+        if (dir.includes('w')) { win.style.width = Math.max(280, sw - dx) + 'px'; win.style.left = (sl + dx) + 'px'; }
+      };
+      const up = () => { window.removeEventListener('mousemove', mv); window.removeEventListener('mouseup', up); };
+      window.addEventListener('mousemove', mv); window.addEventListener('mouseup', up);
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+//  APP HTML BUILDERS
+// ══════════════════════════════════════════════════════════════
+function buildAppHTML(id) {
+  switch (id) {
+    case 'calculator': return buildCalcHTML();
+    case 'notepad':    return buildNotepadHTML();
+    case 'browser':    return buildBrowserHTML();
+    case 'explorer':   return buildFilesHTML();
+    case 'settings':   return buildSettingsHTML();
+    case 'games':      return buildGamesHTML();
+    case 'photos':     return buildPhotosHTML();
+    case 'music':      return buildMusicHTML();
+    case 'terminal':   return buildTerminalHTML();
+    case 'paint':      return buildPaintHTML();
+    case 'calendar':   return buildCalendarHTML();
+    case 'mail':       return buildMailHTML();
+    case 'vpn':        return buildVpnHTML();
+    default:           return `<div style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:14px;color:var(--text-secondary)"><span style="font-size:68px">${APPS[id]?.icon||'📦'}</span><p style="font-size:15px">${APPS[id]?.name||id}</p></div>`;
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  APP: CALCULATOR
+// ──────────────────────────────────────────────────────────────
+function buildCalcHTML() {
+  return `
+<div class="calc-wrap">
+  <div class="calc-mode-bar">
+    <span class="calc-mode-tab active" onclick="calcSetMode(this,'std')">Standard</span>
+    <span class="calc-mode-tab"        onclick="calcSetMode(this,'sci')">Scientific</span>
+  </div>
+  <div class="calc-display">
+    <div class="calc-expr" id="calc-expr"></div>
+    <div class="calc-result" id="calc-result">0</div>
+  </div>
+  <div class="calc-btns" id="calc-btns"></div>
+</div>`;
+}
+
+const STD_BTNS = [
+  ['%','fn'], ['CE','fn'], ['C','fn'],  ['⌫','fn'],
+  ['¹⁄ₓ','fn'],['x²','fn'],['√x','fn'], ['÷','op'],
+  ['7',''],   ['8',''],   ['9',''],    ['×','op'],
+  ['4',''],   ['5',''],   ['6',''],    ['−','op'],
+  ['1',''],   ['2',''],   ['3',''],    ['+','op'],
+  ['+/−',''], ['0',''],   ['.',''],    ['=','eq'],
+];
+const SCI_BTNS = [
+  ['sin','fn'], ['CE','fn'],  ['C','fn'],  ['⌫','fn'],  ['÷','op'],
+  ['cos','fn'], ['7',''],     ['8',''],    ['9',''],    ['×','op'],
+  ['tan','fn'], ['4',''],     ['5',''],    ['6',''],    ['−','op'],
+  ['ln','fn'],  ['1',''],     ['2',''],    ['3',''],    ['+','op'],
+  ['x²','fn'],  ['+/−',''],   ['0',''],   ['.',''],    ['=','eq'],
+  ['√x','fn'],  ['xʸ','fn'],  ['π','fn'], ['e','fn'],  ['%','fn'],
+];
+
+let calcExpr = '', calcCur = '0', calcHasRes = false;
+
+function initCalc() {
+  renderCalcBtns('std');
+}
+
+function renderCalcBtns(mode) {
+  const el = document.getElementById('calc-btns');
+  if (!el) return;
+  const btns = mode === 'sci' ? SCI_BTNS : STD_BTNS;
+  el.className = 'calc-btns' + (mode === 'sci' ? ' sci' : '');
+  el.innerHTML = btns.map(([label, cls]) =>
+    `<button class="cb ${cls}" onclick="calcPress('${label}')">${label}</button>`
+  ).join('');
+}
+
+function calcSetMode(tab, mode) {
+  document.querySelectorAll('.calc-mode-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  renderCalcBtns(mode);
+  const win = document.getElementById('win-calculator');
+  if (win && !openWindows.calculator?.maximized) {
+    win.style.width = (mode === 'sci' ? '420' : '320') + 'px';
+  }
+}
+
+function calcPress(k) {
+  const rd = document.getElementById('calc-result');
+  const ed = document.getElementById('calc-expr');
+  if (!rd || !ed) return;
+  const ops = ['+', '−', '×', '÷'];
+  if (k === 'C' || k === 'CE') {
+    calcExpr = ''; calcCur = '0'; calcHasRes = false;
+  } else if (k === '⌫') {
+    calcCur = calcCur.length > 1 ? calcCur.slice(0,-1) : '0';
+  } else if (k === '=') {
+    try {
+      let expr = calcExpr + calcCur;
+      expr = expr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
+      const res = Function('"use strict";return(' + expr + ')')();
+      calcExpr   = ''; calcCur = String(+res.toFixed(10)); calcHasRes = true;
+    } catch { calcCur = 'Error'; }
+  } else if (ops.includes(k)) {
+    calcExpr += calcCur + (k==='×'?'*':k==='÷'?'/':k==='−'?'-':k);
+    calcCur   = '0'; calcHasRes = false;
+  } else if (k === '+/−') {
+    calcCur = calcCur.startsWith('-') ? calcCur.slice(1) : '-' + calcCur;
+  } else if (k === '¹⁄ₓ') {
+    calcCur = String(1 / parseFloat(calcCur));
+  } else if (k === 'x²') {
+    const n = parseFloat(calcCur); calcCur = String(n * n);
+  } else if (k === 'xʸ') {
+    calcExpr += calcCur + '**'; calcCur = '0';
+  } else if (k === '√x') {
+    calcCur = String(Math.sqrt(parseFloat(calcCur)));
+  } else if (k === 'ln') {
+    calcCur = String(Math.log(parseFloat(calcCur)));
+  } else if (k === 'sin') { calcCur = String(+Math.sin(parseFloat(calcCur)*Math.PI/180).toFixed(10)); }
+  else if (k === 'cos')   { calcCur = String(+Math.cos(parseFloat(calcCur)*Math.PI/180).toFixed(10)); }
+  else if (k === 'tan')   { calcCur = String(+Math.tan(parseFloat(calcCur)*Math.PI/180).toFixed(10)); }
+  else if (k === 'π')     { calcCur = String(Math.PI); }
+  else if (k === 'e')     { calcCur = String(Math.E); }
+  else if (k === '%')     { calcCur = String(parseFloat(calcCur) / 100); }
+  else {
+    if (calcHasRes) { calcExpr = ''; calcHasRes = false; }
+    if (k === '.' && calcCur.includes('.')) return;
+    calcCur = calcCur === '0' && k !== '.' ? k : calcCur + k;
+  }
+  rd.textContent = calcCur;
+  rd.className   = 'calc-result' + (calcCur.length > 10 ? ' small' : '');
+  ed.textContent = calcExpr;
+}
+
+// ──────────────────────────────────────────────────────────────
+//  APP: NOTEPAD
+// ──────────────────────────────────────────────────────────────
+function buildNotepadHTML() {
+  return `
+<div class="notepad-wrap">
+  <div class="notepad-toolbar">
+    <button class="notepad-btn" onclick="npNew()">New</button>
+    <button class="notepad-btn" onclick="npSave()">Save ↓</button>
+    <button class="notepad-btn" onclick="npWrap()">Word Wrap</button>
+    <button class="notepad-btn" onclick="npFont(false)">A+</button>
+    <button class="notepad-btn" onclick="npFont(true)">A−</button>
+    <button class="notepad-btn" onclick="npTimestamp()">Timestamp</button>
+    <span id="np-save-icon" class="np-save-icon" title="Auto-saved">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="15" height="15">
+        <path d="M2 1h9l3 3v10a1 1 0 01-1 1H2a1 1 0 01-1-1V2a1 1 0 011-1z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>
+        <path d="M4 1v4h7V1" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>
+        <rect x="4.5" y="9.5" width="7" height="4" rx="0.5" stroke="currentColor" stroke-width="1.2"/>
+      </svg>
+    </span>
+  </div>
+  <textarea class="notepad-editor" id="np-editor" spellcheck="true" placeholder="Start typing…"></textarea>
+</div>`;
+}
+
+let npFontPx = 14;
+function npNew()  {
+  if (!document.getElementById('np-editor')?.value || confirm('Discard changes?')) {
+    const e = document.getElementById('np-editor');
+    if(e) { e.value = ''; localStorage.setItem('notepadContent', ''); npTriggerSave(); }
+  }
+}
+function npSave() {
+  const text = document.getElementById('np-editor')?.value || '';
+  const a    = Object.assign(document.createElement('a'), { href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(text), download: 'document.txt' });
+  a.click();
+  npTriggerSave();
+}
+function npWrap() {
+  const e = document.getElementById('np-editor'); if(!e) return;
+  const wrap    = e.style.whiteSpace !== 'nowrap';
+  e.style.whiteSpace = wrap ? 'nowrap' : 'pre-wrap';
+  e.style.overflowX  = wrap ? 'auto'   : 'hidden';
+}
+function npFont(shrink) {
+  npFontPx = Math.max(8, Math.min(40, npFontPx + (shrink ? -2 : 2)));
+  const e  = document.getElementById('np-editor'); if(e) e.style.fontSize = npFontPx + 'px';
+}
+function npTimestamp() {
+  const e = document.getElementById('np-editor'); if(!e) return;
+  e.value += '\n' + new Date().toLocaleString();
+  e.scrollTop = e.scrollHeight;
+  localStorage.setItem('notepadContent', e.value);
+  npTriggerSave();
+}
+
+// ──────────────────────────────────────────────────────────────
+//  APP: BROWSER
+// ──────────────────────────────────────────────────────────────
+function buildBrowserHTML() {
+  setTimeout(brSetHomeUrl, 0);
+  return `
+<div class="browser-wrap">
+  <div class="browser-toolbar">
+    <button class="browser-nav-btn" title="Back"    onclick="brNav(-1)">◀</button>
+    <button class="browser-nav-btn" title="Forward" onclick="brNav(1)">▶</button>
+    <button class="browser-nav-btn" title="Reload"  onclick="brReload()">🔄</button>
+    <input class="browser-url" id="br-url" type="text" value="" onkeydown="if(event.key==='Enter')brGo()">
+    <button class="browser-go-btn" onclick="brGo()">→</button>
+  </div>
+  <div class="browser-bookmarks">
+    <div class="bookmark-chip" onclick="brLoad('https://google.com')">🔍 Google</div>
+    <div class="bookmark-chip" onclick="brLoad('https://en.wikipedia.org')">📖 Wikipedia</div>
+    <div class="bookmark-chip" onclick="brLoad('https://github.com')">🐙 GitHub</div>
+    <div class="bookmark-chip" onclick="brLoad('https://youtube.com')">▶ YouTube</div>
+    <div class="bookmark-chip" onclick="brLoad('https://news.ycombinator.com')">🔶 HN</div>
+  </div>
+  <div class="browser-viewport">
+    <div class="browser-loader" id="br-loader" style="width:0%"></div>
+    <iframe class="browser-iframe" id="br-frame" src="about:blank"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+    <div class="browser-error" id="br-error" style="display:none">
+      <div class="error-code">🌐</div>
+      <h2>Can't load this page</h2>
+      <p>Most sites block iframe embedding for security. Open <strong id="br-err-url"></strong> directly in your Chromebook browser instead.</p>
+    </div>
+  </div>
+</div>`;
+}
+
+let brHistory = [], brHistIdx = -1;
+let brSessionId = null;
+function brGenId() {
+  if (!brSessionId) brSessionId = Math.floor(Math.random() * 9000000000 + 1000000000).toString();
+  return brSessionId;
+}
+function brSetHomeUrl() {
+  const urlEl = document.getElementById('br-url');
+  if (urlEl) urlEl.value = 'CloudOS11.desktop/' + brGenId();
+}
+function brGo() {
+  const val = document.getElementById('br-url').value;
+  if (val.startsWith('CloudOS11.desktop/')) { showBrowserError(val); return; }
+  brLoad(val);
+}
+function brReload() { const f = document.getElementById('br-frame'); if(f) f.src = f.src; }
+function brNav(d) {
+  const newIdx = brHistIdx + d;
+  if (newIdx < 0 || newIdx >= brHistory.length) return;
+  brHistIdx = newIdx;
+  const u = brHistory[brHistIdx];
+  const urlEl = document.getElementById('br-url'); if(urlEl) urlEl.value = u;
+  const frame = document.getElementById('br-frame');
+  const err   = document.getElementById('br-error');
+  const ldr   = document.getElementById('br-loader');
+  if (err)   err.style.display = 'none';
+  if (frame) { frame.style.display = 'block'; frame.src = u; }
+  if (ldr)   { ldr.style.width = '30%'; setTimeout(() => ldr.style.width = '80%', 300); setTimeout(() => { if(ldr) ldr.style.width = '0%'; }, 4000); }
+}
+function brLoad(url) {
+  let u = url.trim();
+  if (!u.startsWith('http')) u = 'https://' + u;
+  document.getElementById('br-url').value = u;
+  // Track history: trim forward entries, then push
+  brHistory = brHistory.slice(0, brHistIdx + 1);
+  brHistory.push(u);
+  brHistIdx = brHistory.length - 1;
+  const frame = document.getElementById('br-frame');
+  const err   = document.getElementById('br-error');
+  const ldr   = document.getElementById('br-loader');
+  if (err)   { err.style.display = 'none'; }
+  if (frame) { frame.style.display = 'block'; }
+  if (ldr)   { ldr.style.width = '30%'; setTimeout(() => ldr.style.width = '80%', 300); }
+  if (frame) {
+    frame.src = u;
+    frame.onerror = () => showBrowserError(u);
+    setTimeout(() => {
+      try { if (!frame.contentWindow?.location?.href || frame.contentWindow.location.href === 'about:blank') showBrowserError(u); }
+      catch { showBrowserError(u); }
+      if (ldr) ldr.style.width = '0%';
+    }, 4000);
+  }
+}
+function showBrowserError(u) {
+  const err = document.getElementById('br-error');
+  const lnk = document.getElementById('br-err-url');
+  const frm = document.getElementById('br-frame');
+  if (err) err.style.display = 'flex';
+  if (lnk) lnk.textContent  = u;
+  if (frm) frm.style.display = 'none';
+}
+
+// ──────────────────────────────────────────────────────────────
+//  APP: FILE EXPLORER
+// ──────────────────────────────────────────────────────────────
+const FS = {
+  'Home': [
+    {icon:'📁',name:'Desktop',  size:'—',     type:'folder'},
+    {icon:'📁',name:'Documents',size:'—',     type:'folder'},
+    {icon:'📁',name:'Downloads',size:'—',     type:'folder'},
+    {icon:'📁',name:'Pictures', size:'—',     type:'folder'},
+    {icon:'📁',name:'Music',    size:'—',     type:'folder'},
+    {icon:'📄',name:'notes.txt',size:'2 KB',  type:'txt'},
+    {icon:'📊',name:'budget.xlsx',size:'18 KB',type:'xlsx'},
+    {icon:'🖼️',name:'photo.jpg',size:'3.2 MB',type:'img'},
+    {icon:'📦',name:'setup.exe',size:'44 MB', type:'exe'},
+  ],
+  'Desktop':   [ {icon:'📄',name:'readme.txt',size:'1 KB',type:'txt'}, {icon:'🖼️',name:'bg.jpg',size:'4 MB',type:'img'} ],
+  'Documents': [ {icon:'📝',name:'report.docx',size:'128 KB',type:'docx'}, {icon:'📊',name:'data.csv',size:'88 KB',type:'csv'} ],
+  'Downloads': [ {icon:'📦',name:'installer.msi',size:'120 MB',type:'exe'}, {icon:'🖼️',name:'wallpaper.jpg',size:'8 MB',type:'img'} ],
+  'Pictures':  [ {icon:'🖼️',name:'vacation.jpg',size:'5 MB',type:'img'}, {icon:'🖼️',name:'portrait.png',size:'2 MB',type:'img'} ],
+  'Music':     [ {icon:'🎵',name:'song1.mp3',size:'6 MB',type:'mp3'}, {icon:'🎵',name:'song2.mp3',size:'5 MB',type:'mp3'} ],
+};
+let filesViewMode = 'grid';
+
+function buildFilesHTML() {
+  return `
+<div class="files-wrap">
+  <div class="files-sidebar">
+    <div class="files-section-lbl">Quick access</div>
+    <div class="files-nav-item active" onclick="filesNav(this,'Home')">      <span class="fn-icon">🏠</span>Home</div>
+    <div class="files-nav-item"        onclick="filesNav(this,'Desktop')">   <span class="fn-icon">🖥️</span>Desktop</div>
+    <div class="files-nav-item"        onclick="filesNav(this,'Documents')"> <span class="fn-icon">📄</span>Documents</div>
+    <div class="files-nav-item"        onclick="filesNav(this,'Downloads')"> <span class="fn-icon">⬇️</span>Downloads</div>
+    <div class="files-nav-item"        onclick="filesNav(this,'Pictures')">  <span class="fn-icon">🖼️</span>Pictures</div>
+    <div class="files-nav-item"        onclick="filesNav(this,'Music')">     <span class="fn-icon">🎵</span>Music</div>
+    <div class="files-section-lbl" style="margin-top:14px">Devices</div>
+    <div class="files-nav-item"        onclick="filesNav(this,'Home')">      <span class="fn-icon">💾</span>C: Drive</div>
+    <div class="files-nav-item"        onclick="filesNav(this,'Home')">      <span class="fn-icon">💿</span>D: Drive</div>
+  </div>
+  <div class="files-main">
+    <div class="files-toolbar">
+      <button class="files-tb-btn" onclick="showNotif('Files','New folder created','📁')">📁 New</button>
+      <button class="files-tb-btn" onclick="showNotif('Files','Upload not available in demo','📤')">📤 Upload</button>
+      <div class="files-path" id="files-path">Home</div>
+      <div class="files-view-btns">
+        <button class="files-view-btn active" onclick="setFilesView(this,'grid')" title="Grid">⊞</button>
+        <button class="files-view-btn"         onclick="setFilesView(this,'list')" title="List">☰</button>
+      </div>
+    </div>
+    <div class="files-content" id="files-content"></div>
+  </div>
+</div>`;
+}
+
+function initFiles() { setTimeout(() => filesNav(null, 'Home'), 60); }
+
+function filesNav(el, folder) {
+  document.querySelectorAll('.files-nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const p = document.getElementById('files-path'); if(p) p.textContent = folder;
+  renderFiles(folder);
+}
+
+function renderFiles(folder) {
+  const cont  = document.getElementById('files-content'); if (!cont) return;
+  const items = FS[folder] || FS['Home'];
+  const isList = filesViewMode === 'list';
+  cont.innerHTML = items.map(f => `
+    <div class="file-item ${isList ? 'list-item' : ''}" ondblclick="fileOpen('${f.name}','${f.type}','${folder}')">
+      <span class="fi-icon">${f.icon}</span>
+      <span class="fi-name">${f.name}</span>
+      ${isList ? `<span class="fi-size">${f.size}</span>` : ''}
+    </div>`).join('');
+}
+
+function setFilesView(btn, mode) {
+  filesViewMode = mode;
+  document.querySelectorAll('.files-view-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const cont = document.getElementById('files-content'); if(!cont) return;
+  if (mode === 'list') cont.classList.add('list-mode'); else cont.classList.remove('list-mode');
+  const p = document.getElementById('files-path');
+  if (p) renderFiles(p.textContent);
+}
+
+function fileOpen(name, type, folder) {
+  if (type === 'folder') { filesNav(null, name); return; }
+  if (type === 'txt' || type === 'docx' || type === 'csv') {
+    openApp('notepad');
+    setTimeout(() => { const e = document.getElementById('np-editor'); if(e) e.value = `[${name}]\n\nOpening ${name} — demo mode.\nNo real file content is available.`; }, 250);
+  } else if (type === 'img') {
+    showNotif('Photos', 'Opening ' + name, '🖼️');
+    openApp('photos');
+  } else if (type === 'mp3') {
+    openApp('music');
+  } else {
+    showNotif('Files', `${name} — cannot open in demo`, '📂');
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  APP: SETTINGS
+// ──────────────────────────────────────────────────────────────
+function buildSettingsHTML() {
+  return `
+<div class="settings-wrap">
+  <div class="settings-sidebar">
+    <div class="settings-nav active" onclick="settingsPage(this,'system')"><span class="sn-icon">🖥️</span>System</div>
+    <div class="settings-nav" onclick="settingsPage(this,'personalize')"><span class="sn-icon">🎨</span>Personalization</div>
+    <div class="settings-nav" onclick="settingsPage(this,'network')"><span class="sn-icon">📶</span>Network &amp; Internet</div>
+    <div class="settings-nav" onclick="settingsPage(this,'accounts')"><span class="sn-icon">👤</span>Accounts</div>
+    <div class="settings-nav" onclick="settingsPage(this,'privacy')"><span class="sn-icon">🔒</span>Privacy</div>
+    <div class="settings-nav" onclick="settingsPage(this,'update')"><span class="sn-icon">🔄</span>Windows Update</div>
+    <div class="settings-nav" onclick="settingsPage(this,'about')"><span class="sn-icon">ℹ️</span>About</div>
+  </div>
+  <div class="settings-main">
+
+    <!-- SYSTEM -->
+    <div class="settings-page active" id="sp-system">
+      <div class="settings-page-title">System</div>
+      <div class="settings-card">
+        <div class="settings-card-header">Display</div>
+        <div class="settings-row"><span class="settings-row-lbl">Resolution</span>    <span class="settings-row-val" id="s-res">—</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">Night Light</span>   <div class="toggle-pill" id="toggle-nightlight" onclick="toggleNightLight(this)"></div></div>
+        <div class="settings-row"><span class="settings-row-lbl">HDR</span>           <div class="toggle-pill on" id="toggle-hdr" onclick="toggleHDR(this)"></div></div>
+        <div class="settings-row"><span class="settings-row-lbl">Refresh Rate</span>  <span class="settings-row-val">60 Hz</span></div>
+      </div>
+      <div class="settings-card">
+        <div class="settings-card-header">Sound</div>
+        <div class="settings-row"><span class="settings-row-lbl">Output</span>        <span class="settings-row-val">Speakers (HD Audio)</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">Volume</span>        <span class="settings-row-val">80%</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">Spatial Audio</span><div class="toggle-pill on" id="toggle-spatial" onclick="toggleSpatialAudio(this)"></div></div>
+      </div>
+      <div class="settings-card">
+        <div class="settings-card-header">Power</div>
+        <div class="settings-row"><span class="settings-row-lbl">Battery</span>       <span class="settings-row-val" id="s-battery-text">80% – Plugged in</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">Sleep after</span>   <span class="settings-row-val">30 minutes</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">Power Mode</span>    <span class="settings-row-val">Balanced</span></div>
+      </div>
+    </div>
+
+    <!-- PERSONALIZE -->
+    <div class="settings-page" id="sp-personalize">
+      <div class="settings-page-title">Personalization</div>
+      <div class="settings-card">
+        <div class="settings-card-header">Wallpaper</div>
+        <div style="padding:14px 18px">
+          <div class="wallpaper-grid" id="wp-grid">
+            <div class="wp-thumb wallpaper-bloom   active" onclick="applyWallpaper(this,'wallpaper-bloom')"></div>
+            <div class="wp-thumb wallpaper-space"         onclick="applyWallpaper(this,'wallpaper-space')"></div>
+            <div class="wp-thumb wallpaper-aurora"        onclick="applyWallpaper(this,'wallpaper-aurora')"></div>
+            <div class="wp-thumb wallpaper-sunset"        onclick="applyWallpaper(this,'wallpaper-sunset')"></div>
+            <div class="wp-thumb wallpaper-forest"        onclick="applyWallpaper(this,'wallpaper-forest')"></div>
+            <div class="wp-thumb wallpaper-geo"           onclick="applyWallpaper(this,'wallpaper-geo')"></div>
+            <div class="wp-thumb wallpaper-lava"          onclick="applyWallpaper(this,'wallpaper-lava')"></div>
+            <div class="wp-thumb wallpaper-cyber"         onclick="applyWallpaper(this,'wallpaper-cyber')"></div>
+            <div class="wp-thumb wallpaper-ocean"         onclick="applyWallpaper(this,'wallpaper-ocean')"></div>
+            <div class="wp-thumb wallpaper-neon-city"     onclick="applyWallpaper(this,'wallpaper-neon-city')"></div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-card">
+        <div class="settings-card-header">Theme &amp; Colors</div>
+        <div class="settings-row"><span class="settings-row-lbl">Dark Mode</span>    <div class="toggle-pill on" id="toggle-darkmode" onclick="toggleDarkMode(this)"></div></div>
+        <div class="settings-row"><span class="settings-row-lbl">Transparency</span> <div class="toggle-pill on" id="toggle-transparency" onclick="toggleTransparency(this)"></div></div>
+        <div class="settings-row"><span class="settings-row-lbl">Accent Color</span> <input type="color" id="accent-color-input" value="#0078D4" oninput="setAccentColor(this.value)" title="Choose accent color"></div>
+      </div>
+    </div>
+
+    <!-- NETWORK -->
+    <div class="settings-page" id="sp-network">
+      <div class="settings-page-title">Network &amp; Internet</div>
+      <div class="settings-card">
+        <div class="settings-card-header">Wi-Fi</div>
+        <div class="settings-row"><span class="settings-row-lbl">Status</span>       <span class="settings-row-val" style="color:#5CB85C">Connected ✓</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">Network</span>      <span class="settings-row-val">CloudNet_5G</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">Security</span>     <span class="settings-row-val">WPA3</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">IP Address</span>   <span class="settings-row-val">192.168.1.42</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">Signal</span>       <span class="settings-row-val">Excellent 📶</span></div>
+      </div>
+    </div>
+
+    <!-- ACCOUNTS -->
+    <div class="settings-page" id="sp-accounts">
+      <div class="settings-page-title">Accounts</div>
+      <div class="settings-card">
+        <div class="settings-card-header">Your Info</div>
+        <div class="settings-row"><span class="settings-row-lbl">Name</span>         <div style="display:flex;align-items:center;gap:8px"><span class="settings-row-val" id="account-name-display">CloudOS User</span><button onclick="editUsername()" style="padding:3px 10px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);font-size:11.5px;cursor:pointer;font-family:var(--font)">Edit</button></div></div>
+        <div class="settings-row"><span class="settings-row-lbl">Account Type</span> <span class="settings-row-val">Administrator</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">Sign-in</span>      <span class="settings-row-val">PIN / Password</span></div>
+      </div>
+    </div>
+
+    <!-- PRIVACY -->
+    <div class="settings-page" id="sp-privacy">
+      <div class="settings-page-title">Privacy &amp; Security</div>
+      <div class="settings-card">
+        <div class="settings-card-header">App Permissions</div>
+        <div class="settings-row"><span class="settings-row-lbl">Location</span>     <div class="toggle-pill"    id="toggle-priv-location"      onclick="togglePrivacy(this,'location')"></div></div>
+        <div class="settings-row"><span class="settings-row-lbl">Camera</span>       <div class="toggle-pill on" id="toggle-priv-camera"        onclick="togglePrivacy(this,'camera')"></div></div>
+        <div class="settings-row"><span class="settings-row-lbl">Microphone</span>   <div class="toggle-pill on" id="toggle-priv-microphone"    onclick="togglePrivacy(this,'microphone')"></div></div>
+        <div class="settings-row"><span class="settings-row-lbl">Notifications</span><div class="toggle-pill on" id="toggle-priv-notifications" onclick="togglePrivacy(this,'notifications')"></div></div>
+        <div class="settings-row"><span class="settings-row-lbl">Diagnostics</span>  <div class="toggle-pill"    id="toggle-priv-diagnostics"   onclick="togglePrivacy(this,'diagnostics')"></div></div>
+      </div>
+      <div class="settings-card" style="margin-top:14px">
+        <div class="settings-card-header">Encryption Password</div>
+        <div class="settings-row">
+          <span class="settings-row-lbl">Status</span>
+          <span class="settings-row-val" style="color:#5CB85C">&#128; Active</span>
+        </div>
+        <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:10px;padding-top:10px">
+          <span style="font-size:12px;color:rgba(255,255,255,0.38);line-height:1.5">
+            Changing your password will re-encrypt all saved data with the new password.
+            You must know your current password to proceed.
+          </span>
+          <div style="display:flex;flex-direction:column;gap:8px;width:100%">
+            <input id="priv-pw-current" type="password" placeholder="Current password…" style="padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:#fff;font-size:13px;outline:none;font-family:var(--font);width:100%;box-sizing:border-box;">
+            <input id="priv-pw-new" type="password" placeholder="New password…" style="padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:#fff;font-size:13px;outline:none;font-family:var(--font);width:100%;box-sizing:border-box;">
+            <input id="priv-pw-confirm" type="password" placeholder="Confirm new password…" style="padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:#fff;font-size:13px;outline:none;font-family:var(--font);width:100%;box-sizing:border-box;">
+            <div id="priv-pw-status" style="display:none;font-size:12px;padding:8px 12px;border-radius:7px"></div>
+            <button onclick="vaultChangePassword()" style="padding:9px 20px;background:#0078D4;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);align-self:flex-start;transition:opacity .15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+              🔑 Change Password
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPDATE -->
+    <div class="settings-page" id="sp-update">
+      <div class="settings-page-title">Windows Update</div>
+      <div class="settings-card">
+        <div class="settings-card-header">Update Status</div>
+        <div class="settings-row"><span class="settings-row-lbl">Status</span>        <span class="settings-row-val" style="color:#5CB85C">Up to date ✓</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">Last check</span>    <span class="settings-row-val">Today, 8:00 AM</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">Version</span>       <span class="settings-row-val">CloudOS 11 23H2</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">Build</span>         <span class="settings-row-val">22631.3155</span></div>
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="settings-page" id="sp-about">
+      <div class="settings-page-title">About</div>
+      <div class="settings-card">
+        <div class="settings-card-header">Device Specifications</div>
+        <div class="settings-row"><span class="settings-row-lbl">OS</span>           <span class="settings-row-val">CloudOS 11</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">Edition</span>      <span class="settings-row-val">Home</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">Processor</span>    <span class="settings-row-val">Browser Thread × 4 @ 3.2 GHz</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">RAM</span>           <span class="settings-row-val">8 GB (virtual)</span></div>
+        <div class="settings-row"><span class="settings-row-lbl">Storage</span>      <span class="settings-row-val">128 GB (virtual)</span></div>
+        <div style="padding:14px 18px 18px">
+          <div class="storage-bar"><div class="storage-fill" style="width:62%"></div></div>
+          <p style="font-size:11px;color:var(--text-muted);margin-top:6px">79 GB used of 128 GB</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>`;
+}
+
+function initSettings() {
+  setTimeout(() => {
+    // Resolution display
+    const el = document.getElementById('s-res');
+    if (el) el.textContent = window.innerWidth + ' × ' + window.innerHeight;
+
+    // Battery text (read current persisted level)
+    const batt = document.getElementById('s-battery-text');
+    if (batt) batt.textContent = (parseInt(localStorage.getItem('batteryLevel') || '80')) + '% – Plugged in';
+
+    // Sync toggle pills to actual body-class state
+    const nl = document.getElementById('toggle-nightlight');
+    if (nl) nl.classList.toggle('on', document.body.classList.contains('night-light'));
+
+    const dm = document.getElementById('toggle-darkmode');
+    if (dm) dm.classList.toggle('on', !document.body.classList.contains('light-mode'));
+
+    const tr = document.getElementById('toggle-transparency');
+    if (tr) tr.classList.toggle('on', !document.body.classList.contains('no-transparency'));
+
+    // Sync accent color picker
+    const ac = document.getElementById('accent-color-input');
+    if (ac) ac.value = localStorage.getItem('accentColor') || '#0078D4';
+
+    // Highlight the active wallpaper thumbnail
+    const activeWp = WALLPAPERS[wpIdx] || 'wallpaper-bloom';
+    document.querySelectorAll('.wp-thumb').forEach(t => {
+      t.classList.toggle('active', t.classList.contains(activeWp));
+    });
+
+    // Sync HDR
+    const hdrEl = document.getElementById('toggle-hdr');
+    if (hdrEl) hdrEl.classList.toggle('on', localStorage.getItem('hdr') !== '0');
+    // Sync Spatial Audio
+    const saEl = document.getElementById('toggle-spatial');
+    if (saEl) saEl.classList.toggle('on', localStorage.getItem('spatialAudio') !== '0');
+    // Sync Privacy toggles
+    const privDefaults = { location:false, camera:true, microphone:true, notifications:true, diagnostics:false };
+    Object.entries(privDefaults).forEach(([key, def]) => {
+      const el = document.getElementById('toggle-priv-' + key);
+      if (el) {
+        const saved = localStorage.getItem('priv-' + key);
+        el.classList.toggle('on', saved !== null ? saved === '1' : def);
+      }
+    });
+    // Sync account name
+    const nameEl = document.getElementById('account-name-display');
+    if (nameEl) nameEl.textContent = localStorage.getItem('username') || 'CloudOS User';
+  }, 60);
+}
+
+function settingsPage(nav, page) {
+  document.querySelectorAll('.settings-nav').forEach(n => n.classList.remove('active'));
+  nav.classList.add('active');
+  document.querySelectorAll('.settings-page').forEach(p => p.classList.remove('active'));
+  const pg = document.getElementById('sp-' + page); if(pg) pg.classList.add('active');
+}
+
+function applyWallpaper(el, cls) {
+  document.querySelectorAll('.wp-thumb').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  WALLPAPERS.forEach(c => document.getElementById('desktop').classList.remove(c));
+  document.getElementById('desktop').classList.add(cls);
+  wpIdx = WALLPAPERS.indexOf(cls);
+  localStorage.setItem('wallpaper', cls);
+  showNotif('Settings', 'Wallpaper updated!', '🎨');
+}
+
+// ──────────────────────────────────────────────────────────────
+//  APP: GAMES
+// ──────────────────────────────────────────────────────────────
+function buildGamesHTML() {
+  return `
+<div class="games-wrap">
+  <div class="games-sidebar">
+    <h2>My Library</h2>
+    <div class="game-nav active" onclick="gameNav(this,'library')"><span class="gn-icon">🏠</span>Library</div>
+    <div class="game-nav"        onclick="gameNav(this,'snake')">  <span class="gn-icon">🐍</span>Snake</div>
+    <div class="game-nav"        onclick="gameNav(this,'ttt')">    <span class="gn-icon">⭕</span>Tic-Tac-Toe</div>
+    <div class="game-nav"        onclick="gameNav(this,'2048')">   <span class="gn-icon">🔢</span>2048</div>
+    <div class="game-nav"        onclick="gameNav(this,'ms')">     <span class="gn-icon">💣</span>Minesweeper</div>
+  </div>
+  <div class="games-main">
+
+    <!-- LIBRARY -->
+    <div class="game-viewport active" id="gv-library">
+      <div class="games-library">
+        <div class="game-card" onclick="gameNavId('snake')"><div class="game-art">🐍</div><div class="game-info"><div class="game-name">Snake</div><div class="game-genre">Arcade</div></div></div>
+        <div class="game-card" onclick="gameNavId('ttt')">  <div class="game-art">⭕</div><div class="game-info"><div class="game-name">Tic-Tac-Toe</div><div class="game-genre">Puzzle</div></div></div>
+        <div class="game-card" onclick="gameNavId('2048')"> <div class="game-art">🔢</div><div class="game-info"><div class="game-name">2048</div><div class="game-genre">Puzzle</div></div></div>
+        <div class="game-card" onclick="gameNavId('ms')">   <div class="game-art">💣</div><div class="game-info"><div class="game-name">Minesweeper</div><div class="game-genre">Strategy</div></div></div>
+      </div>
+    </div>
+
+    <!-- SNAKE -->
+    <div class="game-viewport" id="gv-snake">
+      <div class="game-vp-header">
+        <button class="gv-back" onclick="gameNavId('library')">← Back</button>
+        <span class="gv-title">Snake</span>
+        <span class="gv-score" id="snake-score">Score: 0</span>
+        <span class="gv-score" id="snake-best" style="color:var(--accent)">Best: 0</span>
+        <select id="snake-difficulty" class="game-diff-select" onchange="snakeDiffChange()">
+          <option value="easy">🐢 Easy</option>
+          <option value="medium" selected>🐍 Medium</option>
+          <option value="hard">⚡ Hard</option>
+          <option value="extreme">💀 Extreme</option>
+        </select>
+        <button class="gv-btn" onclick="snakeReset()">New Game</button>
+      </div>
+      <div style="position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;gap:10px">
+        <div class="snake-border-wrap">
+          <canvas id="snake-canvas"></canvas>
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5)" id="snake-hint">Use Arrow Keys to move</div>
+      </div>
+    </div>
+
+    <!-- TIC-TAC-TOE -->
+    <div class="game-viewport" id="gv-ttt">
+      <div class="game-vp-header">
+        <button class="gv-back" onclick="gameNavId('library')">← Back</button>
+        <span class="gv-title">Tic-Tac-Toe</span>
+        <span class="gv-score" id="ttt-record">W: 0&nbsp;&nbsp;L: 0&nbsp;&nbsp;D: 0</span>
+        <button class="gv-btn" onclick="tttReset()">New Game</button>
+      </div>
+      <div class="ttt-wrap">
+        <div class="ttt-status" id="ttt-status">X's turn</div>
+        <div class="ttt-grid"   id="ttt-grid"></div>
+      </div>
+    </div>
+
+    <!-- 2048 -->
+    <div class="game-viewport" id="gv-2048">
+      <div class="game-vp-header">
+        <button class="gv-back" onclick="gameNavId('library')">← Back</button>
+        <span class="gv-title">2048</span>
+        <button class="gv-btn" onclick="g2048Reset()">New Game</button>
+      </div>
+      <div class="g2048-wrap">
+        <div class="g2048-scores">
+          <div class="g2048-score-box"><div class="g2048-score-lbl">Score</div><div class="g2048-score-val" id="g2048-score">0</div></div>
+          <div class="g2048-score-box"><div class="g2048-score-lbl">Best</div> <div class="g2048-score-val" id="g2048-best">0</div></div>
+        </div>
+        <div class="g2048-board" id="g2048-board"></div>
+        <p style="font-size:12px;color:var(--text-muted)">Arrow Keys to slide tiles</p>
+      </div>
+    </div>
+
+    <!-- MINESWEEPER -->
+    <div class="game-viewport" id="gv-ms">
+      <div class="game-vp-header">
+        <button class="gv-back" onclick="gameNavId('library')">← Back</button>
+        <span class="gv-title">Minesweeper</span>
+        <button class="ms-diff-btn active" id="ms-diff-easy"   onclick="msSetDifficulty('easy')">Easy</button>
+        <button class="ms-diff-btn"        id="ms-diff-medium" onclick="msSetDifficulty('medium')">Medium</button>
+        <button class="ms-diff-btn"        id="ms-diff-hard"   onclick="msSetDifficulty('hard')">Hard</button>
+        <button class="gv-btn" onclick="msReset()">New Game</button>
+      </div>
+      <div class="ms-wrap">
+        <div class="ms-header">
+          <div class="ms-counter" id="ms-mines">💣 10</div>
+          <div class="ms-face" id="ms-face" onclick="msReset()">🙂</div>
+          <div class="ms-counter" id="ms-timer">⏱ 0</div>
+          <div class="ms-counter" id="ms-best">🏆 --</div>
+        </div>
+        <div class="ms-grid" id="ms-grid"></div>
+        <p style="font-size:11px;color:var(--text-muted)">Left click: reveal &nbsp;|&nbsp; Right click: flag</p>
+      </div>
+    </div>
+
+  </div>
+</div>`;
+}
+
+// ──────────────────────────────────────────────────────────────
+//  GAME AUTO-SAVE
+// ──────────────────────────────────────────────────────────────
+function initGames() {
+  setTimeout(() => {
+    tttInit(); g2048Init(); msInit(); snakeInit();
+    showNotif('Games', 'Game progress loaded 💾', '🎮');
+  }, 80);
+}
+
+function gameNav(el, id) {
+  document.querySelectorAll('.game-nav').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  gameShowViewport(id);
+}
+function gameNavId(id) {
+  const el = document.querySelector(`.game-nav[onclick*="'${id}'"]`);
+  gameNav(el, id);
+}
+function gameShowViewport(id) {
+  document.querySelectorAll('.game-viewport').forEach(v => v.classList.remove('active'));
+  const vp = document.getElementById('gv-' + id); if(vp) vp.classList.add('active');
+  if (id === 'snake') snakeReset();
+  if (id === 'ttt')   tttReset();
+  if (id === '2048')  g2048Reset();
+  if (id === 'ms')    msReset();
+}
+
+// — SNAKE —
+const SNAKE_DIFFICULTIES = {
+  easy:    { speed: 280, label: '🐢 Easy'    },
+  medium:  { speed: 150, label: '🐍 Medium'  },
+  hard:    { speed: 80,  label: '⚡ Hard'    },
+  extreme: { speed: 45,  label: '💀 Extreme' },
+};
+let sGame = null;
+let snakeDifficulty = localStorage.getItem('snakeDifficulty') || 'medium';
+
+function snakeDiffChange() {
+  const sel = document.getElementById('snake-difficulty');
+  if (sel) { snakeDifficulty = sel.value; localStorage.setItem('snakeDifficulty', snakeDifficulty); }
+  snakeReset();
+}
+
+function snakeInit() {
+  const c = document.getElementById('snake-canvas'); if(!c) return;
+  c.width = 320; c.height = 320;
+  const sel = document.getElementById('snake-difficulty');
+  if (sel) sel.value = snakeDifficulty;
+  snakeReset();
+}
+function snakeReset() {
+  if (sGame) clearInterval(sGame.iv);
+  const c = document.getElementById('snake-canvas'); if(!c) return;
+  const N = 16, sz = 320/N;
+  const diff = SNAKE_DIFFICULTIES[snakeDifficulty] || SNAKE_DIFFICULTIES.medium;
+  sGame = { N, sz, dir:{x:1,y:0}, nd:{x:1,y:0}, body:[{x:8,y:8}], food:null, score:0, alive:true };
+  sGame.food = snakeNextFood();
+  sGame.iv   = setInterval(snakeTick, diff.speed);
+  const best = parseInt(localStorage.getItem('snakeBest_' + snakeDifficulty) || '0');
+  const sc = document.getElementById('snake-score'); if(sc) sc.textContent = 'Score: 0';
+  const bestEl = document.getElementById('snake-best'); if(bestEl) bestEl.textContent = 'Best: ' + best;
+  const hint = document.getElementById('snake-hint'); if(hint) hint.textContent = 'Use Arrow Keys to move';
+  snakeDraw();
+}
+function snakeNextFood() {
+  let f;
+  do { f = {x:Math.floor(Math.random()*sGame.N), y:Math.floor(Math.random()*sGame.N)}; }
+  while (sGame.body.some(b=>b.x===f.x&&b.y===f.y));
+  return f;
+}
+document.addEventListener('keydown', e => {
+  if (!sGame?.alive) return;
+  const D = { ArrowUp:{x:0,y:-1}, ArrowDown:{x:0,y:1}, ArrowLeft:{x:-1,y:0}, ArrowRight:{x:1,y:0} };
+  const nd = D[e.key]; if (!nd) return;
+  if (nd.x === -sGame.dir.x && nd.y === -sGame.dir.y) return; // can't reverse
+  sGame.nd = nd;
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+});
+function snakeTick() {
+  if (!sGame?.alive) return;
+  sGame.dir = sGame.nd;
+  const head = {x:(sGame.body[0].x+sGame.dir.x+sGame.N)%sGame.N, y:(sGame.body[0].y+sGame.dir.y+sGame.N)%sGame.N};
+  if (sGame.body.some(b=>b.x===head.x&&b.y===head.y)) {
+    sGame.alive = false; clearInterval(sGame.iv);
+    const hint = document.getElementById('snake-hint');
+    if (hint) hint.textContent = 'Game Over! 😵  Press New Game to play again.';
+    snakeDraw(); return;
+  }
+  sGame.body.unshift(head);
+  if (head.x===sGame.food.x && head.y===sGame.food.y) {
+    sGame.score += 10; sGame.food = snakeNextFood();
+    const sc = document.getElementById('snake-score'); if(sc) sc.textContent = 'Score: ' + sGame.score;
+    const bestKey = 'snakeBest_' + snakeDifficulty;
+    const prevBest = parseInt(localStorage.getItem(bestKey) || '0');
+    if (sGame.score > prevBest) {
+      localStorage.setItem(bestKey, sGame.score);
+      const bestEl = document.getElementById('snake-best'); if(bestEl) bestEl.textContent = 'Best: ' + sGame.score;
+    }
+  } else { sGame.body.pop(); }
+  snakeDraw();
+}
+function snakeDraw() {
+  const c = document.getElementById('snake-canvas'); if(!c) return;
+  const ctx = c.getContext('2d'), sz = sGame.sz;
+  ctx.fillStyle = '#000'; ctx.fillRect(0,0,320,320);
+  // Food
+  ctx.fillStyle = '#e74c3c'; ctx.beginPath();
+  ctx.arc(sGame.food.x*sz+sz/2, sGame.food.y*sz+sz/2, sz/2-2, 0, Math.PI*2); ctx.fill();
+  // Body
+  sGame.body.forEach((b,i) => {
+    ctx.fillStyle = i===0 ? '#2ecc71' : '#27ae60';
+    ctx.beginPath(); ctx.roundRect(b.x*sz+1, b.y*sz+1, sz-2, sz-2, 3); ctx.fill();
+  });
+}
+
+// — TIC-TAC-TOE —
+let tttB, tttT, tttDone;
+let tttRecord = JSON.parse(localStorage.getItem('tttRecord') || '{"w":0,"l":0,"d":0}');
+function tttInit() { tttReset(); }
+function tttReset() {
+  tttB=[...Array(9)].map(()=>''); tttT='X'; tttDone=false;
+  const st=document.getElementById('ttt-status'); if(st) st.textContent="X's turn";
+  const rec=document.getElementById('ttt-record'); if(rec) rec.textContent=`W: ${tttRecord.w}\u00a0\u00a0L: ${tttRecord.l}\u00a0\u00a0D: ${tttRecord.d}`;
+  const grid=document.getElementById('ttt-grid'); if(!grid) return;
+  grid.innerHTML='';
+  for(let i=0;i<9;i++){const c=document.createElement('button');c.className='ttt-cell';c.addEventListener('click',()=>tttClick(i));grid.appendChild(c);}
+}
+const TTT_WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+function tttClick(i){
+  if(tttDone||tttB[i])return;
+  tttB[i]=tttT;
+  const cells=document.querySelectorAll('.ttt-cell');
+  cells[i].textContent=tttT; cells[i].classList.add('taken');
+  const w=TTT_WINS.find(([a,b,c])=>tttB[a]&&tttB[a]===tttB[b]&&tttB[a]===tttB[c]);
+  const st=document.getElementById('ttt-status');
+  const rec=document.getElementById('ttt-record');
+  if(w){
+    tttDone=true;w.forEach(x=>cells[x].classList.add('win'));
+    if(st)st.textContent=tttT+' wins! 🎉';
+    if(tttT==='X')tttRecord.w++;else tttRecord.l++;
+    localStorage.setItem('tttRecord',JSON.stringify(tttRecord));
+    if(rec)rec.textContent=`W: ${tttRecord.w}\u00a0\u00a0L: ${tttRecord.l}\u00a0\u00a0D: ${tttRecord.d}`;
+  } else if(tttB.every(Boolean)){
+    tttDone=true;if(st)st.textContent="Draw!";
+    tttRecord.d++;
+    localStorage.setItem('tttRecord',JSON.stringify(tttRecord));
+    if(rec)rec.textContent=`W: ${tttRecord.w}\u00a0\u00a0L: ${tttRecord.l}\u00a0\u00a0D: ${tttRecord.d}`;
+  } else{tttT=tttT==='X'?'O':'X';if(st)st.textContent=tttT+"'s turn";}
+}
+
+// — 2048 —
+let g24state={board:null,score:0}, g24best=parseInt(localStorage.getItem('g2048Best')||'0');
+function g2048Init(){g2048Reset();}
+function g2048Reset(){
+  g24state={board:Array(4).fill(null).map(()=>Array(4).fill(0)),score:0};
+  g2048Spawn();g2048Spawn();g2048Render();
+}
+function g2048Spawn(){
+  const empty=[];
+  g24state.board.forEach((r,i)=>r.forEach((v,j)=>{if(!v)empty.push([i,j]);}));
+  if(!empty.length)return;
+  const[r,c]=empty[Math.floor(Math.random()*empty.length)];
+  g24state.board[r][c]=Math.random()<0.9?2:4;
+}
+function g2048Render(){
+  const b=document.getElementById('g2048-board');if(!b)return;
+  b.innerHTML='';
+  g24state.board.forEach(row=>row.forEach(v=>{
+    const t=document.createElement('div');
+    t.className='g2048-tile'+(v?' t'+v:'');
+    t.textContent=v||'';b.appendChild(t);
+  }));
+  document.getElementById('g2048-score').textContent=g24state.score;
+  if(g24state.score>g24best){
+    g24best=g24state.score;
+    localStorage.setItem('g2048Best',g24best);
+    document.getElementById('g2048-best').textContent=g24best;
+  } else {
+    document.getElementById('g2048-best').textContent=g24best;
+  }
+}
+const G24_DIRS={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]};
+document.addEventListener('keydown',e=>{
+  const vp=document.getElementById('gv-2048');if(!vp?.classList.contains('active'))return;
+  const d=G24_DIRS[e.key];if(!d)return;e.preventDefault();
+  let b=g24state.board.map(r=>[...r]),moved=false;
+  const slide=g=>{
+    for(let i=0;i<g.length;i++){
+      let row=g[i].filter(v=>v);
+      for(let j=0;j<row.length-1;j++){if(row[j]===row[j+1]){g24state.score+=row[j]*2;row[j]*=2;row.splice(j+1,1);}}
+      while(row.length<g.length)row.push(0);
+      if(JSON.stringify(g[i])!==JSON.stringify(row))moved=true;
+      g[i]=row;
+    }return g;
+  };
+  const tp=g=>g[0].map((_,i)=>g.map(r=>r[i]));
+  const rv=g=>g.map(r=>[...r].reverse());
+  if(d[0]===0){b=d[1]<0?slide(b):rv(slide(rv(b)));}
+  else{b=tp(b);b=d[0]<0?slide(b):rv(slide(rv(b)));b=tp(b);}
+  g24state.board=b;if(moved)g2048Spawn();g2048Render();
+});
+
+// — MINESWEEPER —
+const MS_DIFFICULTIES = {
+  easy:   { rows:9,  cols:9,  mines:10 },
+  medium: { rows:16, cols:16, mines:40 },
+  hard:   { rows:16, cols:30, mines:99 },
+};
+let ms={}, msDifficulty = localStorage.getItem('msDifficulty') || 'easy';
+
+function msSetDifficulty(diff) {
+  msDifficulty = diff;
+  localStorage.setItem('msDifficulty', diff);
+  ['easy','medium','hard'].forEach(d => {
+    const btn = document.getElementById('ms-diff-' + d);
+    if (btn) btn.classList.toggle('active', d === diff);
+  });
+  msReset();
+}
+
+function msInit(){
+  const saved = localStorage.getItem('msDifficulty');
+  if (saved) msDifficulty = saved;
+  msReset();
+}
+function msReset(){
+  clearInterval(ms.timer);
+  const diff = MS_DIFFICULTIES[msDifficulty] || MS_DIFFICULTIES.easy;
+  ms={rows:diff.rows,cols:diff.cols,mines:diff.mines,board:[],revealed:0,flags:0,done:false,started:false,elapsed:0,timer:null};
+  for(let r=0;r<ms.rows;r++){ms.board[r]=[];for(let c=0;c<ms.cols;c++)ms.board[r][c]={mine:false,revealed:false,flagged:false,adj:0};}
+  const f=document.getElementById('ms-face');if(f)f.textContent='🙂';
+  const m=document.getElementById('ms-mines');if(m)m.textContent='💣 '+diff.mines;
+  const t=document.getElementById('ms-timer');if(t)t.textContent='⏱ 0';
+  const savedBest = localStorage.getItem('msBest_' + msDifficulty);
+  const bestEl=document.getElementById('ms-best');if(bestEl)bestEl.textContent=savedBest?'🏆 '+savedBest:'🏆 --';
+  ['easy','medium','hard'].forEach(d => {
+    const btn = document.getElementById('ms-diff-' + d);
+    if (btn) btn.classList.toggle('active', d === msDifficulty);
+  });
+  msRender();
+}
+function msPlace(sr,sc){
+  let p=0;
+  while(p<ms.mines){const r=Math.floor(Math.random()*ms.rows),c=Math.floor(Math.random()*ms.cols);if(!ms.board[r][c].mine&&!(r===sr&&c===sc)){ms.board[r][c].mine=true;p++;}}
+  for(let r=0;r<ms.rows;r++)for(let c=0;c<ms.cols;c++){if(ms.board[r][c].mine)continue;let a=0;for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<ms.rows&&nc>=0&&nc<ms.cols&&ms.board[nr][nc].mine)a++;}ms.board[r][c].adj=a;}
+}
+function msReveal(r,c){
+  const cell=ms.board[r][c];if(cell.revealed||cell.flagged)return;
+  if(!ms.started){msPlace(r,c);ms.started=true;ms.timer=setInterval(()=>{ms.elapsed++;const t=document.getElementById('ms-timer');if(t)t.textContent='⏱ '+ms.elapsed;},1000);}
+  cell.revealed=true;ms.revealed++;
+  if(cell.mine){ms.done=true;clearInterval(ms.timer);const f=document.getElementById('ms-face');if(f)f.textContent='😵';ms.board.forEach(row=>row.forEach(ce=>{if(ce.mine)ce.revealed=true;}));msRender();return;}
+  if(cell.adj===0){for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<ms.rows&&nc>=0&&nc<ms.cols)msReveal(nr,nc);}}
+  if(ms.revealed===ms.rows*ms.cols-ms.mines){
+    ms.done=true;clearInterval(ms.timer);
+    const f=document.getElementById('ms-face');if(f)f.textContent='😎';
+    const bestKey='msBest_'+msDifficulty;
+    const prevBest=parseInt(localStorage.getItem(bestKey)||'999999');
+    if(ms.elapsed<prevBest){
+      localStorage.setItem(bestKey,ms.elapsed);
+      const bestEl=document.getElementById('ms-best');if(bestEl)bestEl.textContent='🏆 '+ms.elapsed;
+    }
+    showNotif('Minesweeper','You win! 🎉','💣');
+  }
+  msRender();
+}
+function msFlag(r,c){const cell=ms.board[r][c];if(cell.revealed)return;cell.flagged=!cell.flagged;ms.flags+=cell.flagged?1:-1;const m=document.getElementById('ms-mines');if(m)m.textContent='💣 '+(ms.mines-ms.flags);msRender();}
+const MS_COLS=['','n1','n2','n3','n4','n5','n6','n7','n8'];
+function msRender(){
+  const g=document.getElementById('ms-grid');if(!g)return;
+  g.style.gridTemplateColumns='repeat('+ms.cols+',1fr)';g.innerHTML='';
+  for(let r=0;r<ms.rows;r++)for(let c=0;c<ms.cols;c++){
+    const cell=ms.board[r][c];const b=document.createElement('button');
+    b.className='ms-cell'+(cell.revealed?' revealed':'')+(cell.flagged?' flagged':'')+(cell.revealed&&cell.mine?' mine-hit':'');
+    if(cell.revealed){if(cell.mine)b.textContent='💣';else if(cell.adj>0){b.textContent=cell.adj;b.classList.add(MS_COLS[cell.adj]);}}
+    else if(cell.flagged)b.textContent='🚩';
+    const rr=r,cc=c;
+    b.addEventListener('click',()=>{if(!ms.done)msReveal(rr,cc);});
+    b.addEventListener('contextmenu',e=>{e.preventDefault();if(!ms.done)msFlag(rr,cc);});
+    g.appendChild(b);
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  APP: PHOTOS
+// ──────────────────────────────────────────────────────────────
+function buildPhotosHTML() {
+  const emojis = ['🌅','🌄','🏔️','🌊','🌸','🦋','🌙','⭐','🌈','🏜️','🌿','❄️','🦅','🐚','🍁','🌺'];
+  const cards  = emojis.map((e,i) => `
+    <div class="game-card" onclick="showNotif('Photos','Viewing: Photo ${i+1}','🖼️')">
+      <div class="game-art" style="font-size:54px;height:100px">${e}</div>
+      <div class="game-info"><div class="game-name">Photo ${i+1}</div><div class="game-genre">${(4+i*0.7).toFixed(1)} MB</div></div>
+    </div>`).join('');
+  return `<div style="height:100%;overflow-y:auto;padding:14px;background:#111"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">${cards}</div></div>`;
+}
+
+// ──────────────────────────────────────────────────────────────
+//  APP: MUSIC
+// ──────────────────────────────────────────────────────────────
+function buildMusicHTML() {
+  const tracks = [
+    { t:'Midnight Drive',  a:'Synthwave Co.',  e:'🌙', d:'3:42' },
+    { t:'Summer Vibes',    a:'Chill Beats',     e:'☀️', d:'4:11' },
+    { t:'City Lights',     a:'Lo-Fi Studio',    e:'🌆', d:'3:58' },
+    { t:'Deep Ocean',      a:'Ambient Sounds',  e:'🌊', d:'5:20' },
+    { t:'Forest Walk',     a:'Nature Music',    e:'🌿', d:'4:33' },
+    { t:'Neon Skyline',    a:'Retrowave',        e:'🌃', d:'3:55' },
+  ];
+  const list = tracks.map((tr,i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;cursor:pointer;transition:background 0.15s"
+         onmouseover="this.style.background='rgba(255,255,255,0.07)'"
+         onmouseout="this.style.background=''"
+         onclick="musicPlay('${tr.t}','${tr.a}','${tr.e}')">
+      <span style="font-size:28px">${tr.e}</span>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">${tr.t}</div><div style="font-size:12px;color:var(--text-muted)">${tr.a}</div></div>
+      <span style="color:var(--text-muted);font-size:12px">${tr.d}</span>
+    </div>`).join('');
+  return `
+<div style="display:flex;flex-direction:column;height:100%;background:#111;overflow:hidden">
+  <div style="flex:1;overflow-y:auto;padding:12px">${list}</div>
+  <div style="border-top:1px solid var(--border);padding:14px 18px;background:#0d0d0d;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <span id="music-emoji" style="font-size:36px">🎵</span>
+      <div style="flex:1;min-width:0">
+        <div id="music-title"  style="font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">No track selected</div>
+        <div id="music-artist" style="font-size:12px;color:var(--text-muted)"></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center;align-items:center;gap:14px;margin-bottom:12px">
+      <button onclick="showNotif('Music','Previous','⏮️')" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer">⏮️</button>
+      <button id="music-play" onclick="musicToggle()" style="background:var(--accent);border:none;color:#fff;cursor:pointer;width:46px;height:46px;border-radius:50%;font-size:18px;display:flex;align-items:center;justify-content:center">▶</button>
+      <button onclick="showNotif('Music','Next','⏭️')" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer">⏭️</button>
+    </div>
+    <input type="range" min="0" max="100" value="30" style="width:100%">
+  </div>
+</div>`;
+}
+let musicIsPlaying = false;
+function musicPlay(title, artist, emoji) {
+  document.getElementById('music-title').textContent  = title;
+  document.getElementById('music-artist').textContent = artist;
+  document.getElementById('music-emoji').textContent  = emoji;
+  musicIsPlaying = true;
+  document.getElementById('music-play').textContent = '⏸';
+  showNotif('Music', 'Now playing: ' + title, '🎵');
+}
+function musicToggle() {
+  musicIsPlaying = !musicIsPlaying;
+  document.getElementById('music-play').textContent = musicIsPlaying ? '⏸' : '▶';
+}
+
+// ──────────────────────────────────────────────────────────────
+//  APP: TERMINAL
+// ──────────────────────────────────────────────────────────────
+function buildTerminalHTML() {
+  return `
+<div style="display:flex;flex-direction:column;height:100%;background:#0a0a0a;font-family:var(--font-mono);font-size:13px;color:#d4d4d4">
+  <div style="padding:7px 14px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:11.5px;color:rgba(255,255,255,0.35);flex-shrink:0">
+    CloudOS Terminal — Windows PowerShell
+  </div>
+  <div id="term-out" style="flex:1;overflow-y:auto;padding:12px 16px;line-height:1.7"></div>
+  <div style="display:flex;align-items:center;border-top:1px solid rgba(255,255,255,0.06);padding:7px 16px;gap:8px;flex-shrink:0">
+    <span style="color:#569cd6;white-space:nowrap">PS C:\\Users\\User&gt;</span>
+    <input id="term-in" type="text" style="flex:1;background:none;border:none;outline:none;color:#d4d4d4;font-family:var(--font-mono);font-size:13px"
+           placeholder="Type a command…" onkeydown="if(event.key==='Enter')termRun()">
+  </div>
+</div>`;
+}
+
+function initTerminal() {
+  setTimeout(() => {
+    termPrint('Windows PowerShell', '#569cd6');
+    termPrint('Copyright (C) CloudOS Corporation. All rights reserved.', '#888');
+    termPrint('');
+    termPrint('Type <span style="color:#9cdcfe">help</span> to see available commands.', '#888');
+    termPrint('');
+  }, 60);
+}
+
+const TERM = {
+  help:    () => 'Available: help, dir, ls, date, time, ver, whoami, ipconfig, sysinfo, echo &lt;text&gt;, calc, cls, clear, color',
+  dir:     () => 'Directory of C:\\Users\\User\n    notes.txt        2 KB\n    budget.xlsx     18 KB\n    photo.jpg        3 MB\n    Documents      &lt;DIR&gt;\n    Downloads      &lt;DIR&gt;\n    Pictures       &lt;DIR&gt;',
+  ls:      () => TERM.dir(),
+  date:    () => new Date().toDateString(),
+  time:    () => new Date().toLocaleTimeString(),
+  ver:     () => 'CloudOS 11 [Version 22631.3155]',
+  whoami:  () => 'cloudos\\user',
+  ipconfig:() => 'Ethernet:\n   IPv4 Address: 192.168.1.42\n   Subnet Mask:  255.255.255.0\n   Gateway:      192.168.1.1',
+  sysinfo: () => 'Host: CloudOS 11\nOS:   CloudOS 11 Home 23H2\nCPU:  4 × 3.2 GHz (virtual)\nRAM:  8 GB\nDisk: 128 GB (79 GB used)',
+  cls:     () => { document.getElementById('term-out').innerHTML = ''; return null; },
+  clear:   () => TERM.cls(),
+};
+
+function termPrint(html, color) {
+  const out = document.getElementById('term-out'); if(!out) return;
+  out.innerHTML += `<div style="${color?'color:'+color:''}">${html}</div>`;
+  out.scrollTop  = out.scrollHeight;
+}
+function termRun() {
+  const inp = document.getElementById('term-in'); if(!inp) return;
+  const raw = inp.value.trim(); inp.value = '';
+  termPrint(`<span style="color:#569cd6">PS C:\\Users\\User&gt;</span> <span style="color:#d4d4d4">${raw}</span>`);
+  if (!raw) return;
+  const [cmd, ...args] = raw.toLowerCase().split(' ');
+  if (cmd === 'echo')  { termPrint(args.join(' ')); }
+  else if (cmd === 'calc')  { openApp('calculator'); termPrint('Opening Calculator…'); }
+  else if (cmd === 'color') { termPrint('Color change – demo only.', '#888'); }
+  else if (TERM[cmd]) {
+    const res = TERM[cmd]();
+    if (res !== null && res !== undefined) termPrint(`<pre style="margin:0;white-space:pre-wrap">${res}</pre>`);
+  } else {
+    termPrint(`<span style="color:#f48771">'${raw}' is not recognized as an internal command.</span>`);
+  }
+  termPrint('');
+}
+
+// ──────────────────────────────────────────────────────────────
+//  APP: PAINT
+// ──────────────────────────────────────────────────────────────
+const PAINT_COLORS = ['#000000','#FFFFFF','#FF0000','#00C853','#2196F3','#FFEB3B','#FF00FF','#00BCD4','#FF8C00','#8B0000','#006400','#1A237E','#757575','#BDBDBD','#6A1B9A','#F48FB1'];
+
+function buildPaintHTML() {
+  const swatches = PAINT_COLORS.map(c => `<div class="paint-swatch" onclick="paintPickColor(this,'${c}')" style="width:22px;height:22px;background:${c};border:2px solid transparent;border-radius:3px;cursor:pointer;flex-shrink:0"></div>`).join('');
+  return `
+<div style="display:flex;flex-direction:column;height:100%;background:#1a1a1a">
+  <div style="display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap;flex-shrink:0">
+    <select id="paint-tool" style="background:rgba(255,255,255,0.08);border:1px solid var(--border);color:#fff;border-radius:5px;padding:4px 8px;font-size:12px;cursor:pointer">
+      <option value="pen">✏️ Pen</option>
+      <option value="eraser">⬜ Eraser</option>
+      <option value="line">📏 Line</option>
+      <option value="rect">⬛ Rect</option>
+      <option value="circle">⭕ Ellipse</option>
+    </select>
+    <input type="range" id="paint-sz" min="1" max="30" value="4" style="width:70px">
+    <span id="paint-sz-lbl" style="font-size:11px;color:var(--text-muted);min-width:28px">4px</span>
+    <div style="display:flex;gap:4px;flex-wrap:wrap">${swatches}</div>
+    <div id="paint-cur" style="width:26px;height:26px;border-radius:4px;border:2px solid rgba(255,255,255,0.3);background:#000;flex-shrink:0"></div>
+    <button onclick="paintClear()" style="padding:4px 10px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:5px;color:#fff;font-size:12px;cursor:pointer">Clear</button>
+    <button onclick="paintSave()"  style="padding:4px 10px;background:var(--accent);border:none;border-radius:5px;color:#fff;font-size:12px;cursor:pointer">Save ↓</button>
+  </div>
+  <canvas id="paint-canvas" style="flex:1;cursor:crosshair;display:block;width:100%"></canvas>
+</div>`;
+}
+
+function initPaint() {
+  setTimeout(() => {
+    const canvas = document.getElementById('paint-canvas'); if(!canvas) return;
+    const ctx    = canvas.getContext('2d');
+    let drawing=false, color='#000000', size=4, tool='pen', sx=0, sy=0, snap=null;
+
+    function fitCanvas() {
+      const w=canvas.parentElement.clientWidth, h=canvas.parentElement.clientHeight-canvas.getBoundingClientRect().top+canvas.parentElement.getBoundingClientRect().top;
+      if(canvas.width!==w||canvas.height!==h){ const img=ctx.getImageData(0,0,canvas.width,canvas.height); canvas.width=w; canvas.height=Math.max(100,canvas.parentElement.clientHeight-45); ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height); try{ctx.putImageData(img,0,0);}catch{} }
+    }
+    fitCanvas();
+
+    const szEl = document.getElementById('paint-sz');
+    if(szEl) szEl.addEventListener('input',function(){ size=+this.value; document.getElementById('paint-sz-lbl').textContent=size+'px'; });
+    const toolEl = document.getElementById('paint-tool');
+    if(toolEl) toolEl.addEventListener('change',function(){ tool=this.value; });
+
+    const getPos = e => { const r=canvas.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; };
+
+    canvas.addEventListener('mousedown', e => {
+      drawing=true; const p=getPos(e); sx=p.x; sy=p.y;
+      snap=ctx.getImageData(0,0,canvas.width,canvas.height);
+      ctx.strokeStyle=tool==='eraser'?'#fff':color;
+      ctx.lineWidth  =tool==='eraser'?size*3:size;
+      ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath(); ctx.moveTo(sx,sy);
+    });
+    canvas.addEventListener('mousemove', e => {
+      if(!drawing)return;
+      const p=getPos(e);
+      ctx.strokeStyle=tool==='eraser'?'#fff':color;
+      ctx.lineWidth  =tool==='eraser'?size*3:size;
+      if(tool==='pen'||tool==='eraser'){ctx.lineTo(p.x,p.y);ctx.stroke();}
+      else{ctx.putImageData(snap,0,0);ctx.beginPath();
+        if(tool==='rect')  {ctx.strokeRect(sx,sy,p.x-sx,p.y-sy);}
+        if(tool==='circle'){ctx.ellipse(sx+(p.x-sx)/2,sy+(p.y-sy)/2,Math.abs((p.x-sx)/2),Math.abs((p.y-sy)/2),0,0,Math.PI*2);ctx.stroke();}
+        if(tool==='line')  {ctx.moveTo(sx,sy);ctx.lineTo(p.x,p.y);ctx.stroke();}
+      }
+    });
+    canvas.addEventListener('mouseup',   ()=>drawing=false);
+    canvas.addEventListener('mouseleave',()=>drawing=false);
+
+    // Store on canvas element for the global helpers
+    canvas._pc = { ctx, getColor:()=>color, setColor:c=>{ color=c; const cur=document.getElementById('paint-cur');if(cur)cur.style.background=c; } };
+    canvas._pc.setColor('#000000'); // init indicator
+  }, 80);
+}
+
+function paintPickColor(el, c) {
+  document.querySelectorAll('.paint-swatch').forEach(s => s.style.border='2px solid transparent');
+  el.style.border='2px solid rgba(255,255,255,0.7)';
+  const canvas=document.getElementById('paint-canvas');
+  if(canvas?._pc) canvas._pc.setColor(c);
+}
+function paintClear() {
+  const canvas=document.getElementById('paint-canvas');if(!canvas)return;
+  const ctx=canvas.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+function paintSave() {
+  const canvas=document.getElementById('paint-canvas');if(!canvas)return;
+  const a=Object.assign(document.createElement('a'),{href:canvas.toDataURL('image/png'),download:'painting.png'});
+  a.click(); showNotif('Paint','Image saved!','🎨');
+}
+
+// ──────────────────────────────────────────────────────────────
+//  APP: CALENDAR
+// ──────────────────────────────────────────────────────────────
+const CAL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const CAL_DAYS   = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+let calYear, calMonth;
+
+function calRender() {
+  const now   = new Date();
+  const y = calYear, m = calMonth;
+  const first = new Date(y, m, 1).getDay();
+  const days  = new Date(y, m+1, 0).getDate();
+  let grid = `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center">`;
+  CAL_DAYS.forEach(d => grid += `<div style="font-size:11px;color:var(--text-muted);padding:4px">${d}</div>`);
+  for(let i=0;i<first;i++) grid += '<div></div>';
+  for(let d=1;d<=days;d++){
+    const today=y===now.getFullYear()&&m===now.getMonth()&&d===now.getDate();
+    grid+=`<div style="padding:6px 2px;border-radius:6px;cursor:pointer;font-size:13px;${today?'background:var(--accent);color:#fff;font-weight:700':''}" onmouseover="if(!${today})this.style.background='rgba(255,255,255,0.08)'" onmouseout="if(!${today})this.style.background=''">${d}</div>`;
+  }
+  grid += '</div>';
+  const titleEl = document.getElementById('cal-title');
+  const gridEl  = document.getElementById('cal-grid');
+  if (titleEl) titleEl.textContent = `${CAL_MONTHS[m]} ${y}`;
+  if (gridEl)  gridEl.innerHTML = grid;
+}
+
+function calNav(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  calRender();
+}
+
+function initCalendar() {
+  setTimeout(calRender, 60);
+}
+
+function buildCalendarHTML() {
+  const now = new Date();
+  calYear  = now.getFullYear();
+  calMonth = now.getMonth();
+  return `
+<div style="display:flex;flex-direction:column;height:100%;background:#111;padding:20px;gap:16px">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <h2 id="cal-title" style="font-size:20px;font-weight:600">${CAL_MONTHS[calMonth]} ${calYear}</h2>
+    <div style="display:flex;gap:6px">
+      <button onclick="calNav(-1)" style="padding:5px 12px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:5px;color:#fff;cursor:pointer">◀</button>
+      <button onclick="calNav(1)"  style="padding:5px 12px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:5px;color:#fff;cursor:pointer">▶</button>
+    </div>
+  </div>
+  <div id="cal-grid"></div>
+  <div style="border-top:1px solid var(--border);padding-top:14px">
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Upcoming</div>
+    <div style="font-size:13px;color:var(--text-secondary)">No upcoming events. (Demo mode)</div>
+  </div>
+</div>`;
+}
+
+// ──────────────────────────────────────────────────────────────
+//  APP: MAIL
+// ──────────────────────────────────────────────────────────────
+function buildMailHTML() {
+  const msgs = [
+    {from:'Anthropic Team',  subj:'Welcome to CloudOS 11!',           date:'Today',     preview:'Thanks for using CloudOS. We hope you enjoy the experience…'},
+    {from:'GitHub',          subj:'Your repo got a new star ⭐',       date:'Today',     preview:'Someone starred your repository. Keep up the great work!'},
+    {from:'System',          subj:'Security update available',         date:'Yesterday', preview:'A new security patch is ready to install. Please review…'},
+    {from:'Newsletter',      subj:'Top tech stories this week',        date:'Jun 11',    preview:'This week in tech: AI breakthroughs, new hardware launches…'},
+    {from:'Cloud Storage',   subj:'Your storage is 80% full',          date:'Jun 10',    preview:'You are using 79 GB of 128 GB. Consider upgrading your plan…'},
+  ];
+  const list = msgs.map((m,i) => `
+    <div style="display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:background 0.1s"
+         onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background=''"
+         onclick="showNotif('Mail','Opening: ${m.subj}','✉️')">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${m.from[0]}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+          <span style="font-weight:${i<2?'700':'400'};font-size:13px">${m.from}</span>
+          <span style="font-size:11px;color:var(--text-muted)">${m.date}</span>
+        </div>
+        <div style="font-size:13px;${i<2?'':'color:var(--text-secondary)'};margin-bottom:2px">${m.subj}</div>
+        <div style="font-size:11.5px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.preview}</div>
+      </div>
+    </div>`).join('');
+  return `
+<div style="display:flex;height:100%;background:#111">
+  <div style="width:180px;background:#0d0d0d;border-right:1px solid var(--border);padding:12px 8px;flex-shrink:0">
+    <button onclick="showNotif('Mail','Compose not available in demo','✉️')" style="width:100%;padding:8px;background:var(--accent);border:none;border-radius:6px;color:#fff;font-size:13px;cursor:pointer;margin-bottom:12px">+ Compose</button>
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:5px;background:rgba(0,120,212,0.2);color:#6AB4F5;font-size:13px;cursor:pointer">📥 Inbox <span style="margin-left:auto;background:var(--accent);color:#fff;border-radius:10px;padding:1px 7px;font-size:11px">2</span></div>
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:5px;font-size:13px;color:var(--text-secondary);cursor:pointer;margin-top:2px">📤 Sent</div>
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:5px;font-size:13px;color:var(--text-secondary);cursor:pointer;margin-top:2px">🗑️ Trash</div>
+  </div>
+  <div style="flex:1;overflow-y:auto">${list}</div>
+</div>`;
+}
+</script>
+<script src="vault.js"></script>
+<script src="game-icons.js"></script>
+<script src="games2.js"></script>
+<script src="vpn.js"></script>
+</body>
+</html>
