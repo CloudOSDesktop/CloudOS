@@ -264,6 +264,9 @@ let weatherUnitF  = true;
 //  BOOT
 // ──────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
+  // Change the real browser URL to CloudOS11.desktop/randomId
+  const sessionId = Math.floor(Math.random() * 9000000000 + 1000000000).toString();
+  window.history.replaceState(null, '', '/CloudOS11.desktop/' + sessionId);
   buildDesktopIcons();
   buildStartMenu();
   startClock();
